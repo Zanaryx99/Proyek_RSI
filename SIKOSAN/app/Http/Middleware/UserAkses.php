@@ -20,10 +20,13 @@ class UserAkses
             return redirect('/login');
         }
 
-        $userRole = Auth::user()->role;
+        $userRole = Auth::user()->peran; // Diubah dari 'role' menjadi 'peran'
 
-        if ($userRole !== $role) {
-            return $userRole === 'pemilik' ? redirect('/Dpemilik') : redirect('/Dpenghuni');
+        // Ubah parameter role menjadi lowercase untuk konsistensi
+        $allowedRole = strtolower($role);
+
+        if ($userRole !== $allowedRole) {
+            return $userRole === 'pemilik' ? redirect('/Dpemilik') : redirect('/DPenghuni');
         }
         return $next($request);
     }

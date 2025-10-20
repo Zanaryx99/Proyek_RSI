@@ -53,7 +53,7 @@
             </div>
 
             {{-- FORM --}}
-            <form class="space-y-4" action="/register" method="POST">
+            <form class="space-y-4" action="/register/create" method="POST">
                 @csrf
 
                 {{-- Input Username --}}

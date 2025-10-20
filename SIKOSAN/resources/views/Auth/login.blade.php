@@ -52,7 +52,7 @@
             </div>
 
             {{-- FORM --}}
-            <form class="space-y-6" action="#" method="POST">
+            <form class="space-y-6" action="/login" method="POST">
                 @csrf
 
                 {{-- Input Email/Username --}}
