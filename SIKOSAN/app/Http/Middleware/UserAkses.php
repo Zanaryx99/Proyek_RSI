@@ -12,7 +12,7 @@ class UserAkses
     /**
      * Handle an incoming request.
      *
-     * @param  \Closure(\Illuminate\Http\Request): (\Symfony\Component\HttpFoundation\Response)  $next
+     * @param  \Closure(\Illuminate\Http\Request): (\Symfony\Component\HttpFoundation\Response)
      */
     public function handle(Request $request, Closure $next, string $role): Response
     {
@@ -20,9 +20,9 @@ class UserAkses
             return redirect('/login');
         }
 
-        $userRole = Auth::user()->peran; // Diubah dari 'role' menjadi 'peran'
+        $userRole = Auth::user()->peran;
 
-        // Ubah parameter role menjadi lowercase untuk konsistensi
+
         $allowedRole = strtolower($role);
 
         if ($userRole !== $allowedRole) {
