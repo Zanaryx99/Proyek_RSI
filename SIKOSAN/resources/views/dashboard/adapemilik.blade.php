@@ -4,7 +4,7 @@
 <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width,initial-scale=1">
-    <title>Dashboard Pemilik</title>
+    <title>Dashboard isi Pemilik</title>
 
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;700&display=swap" rel="stylesheet">
@@ -70,27 +70,62 @@
         </div>
     </header>
 
-    <main class="flex items-center justify-center h-full px-60">
-        <div class=" w-full max-w-5xl mx-auto p-8">
-            <div class="p-12 text-center flex flex-col items-center">
+    <div class="bg-gray-50 min-h-screen">
+        <div class="max-w-7xl mx-auto py-12 px-4 sm:px-6 lg:px-8">
 
-                <h1 class="text-4xl font-bold custom-teal">Selamat Datang di Sikosan</h1>
-                <p class="text-lg text-gray-500 mt-2">kamu belum mendaftarkan kos</p>
+            <!-- Header Halaman -->
+            <div class="mb-8">
+                <h1 class="text-4xl font-bold text-teal-800 font-playfair">Daftar Kos Anda</h1>
+                <p class="text-gray-600 mt-2">Kelola semua properti kos Anda dari sini.</p>
+            </div>
 
-                <div class="my-12">
-                    <p class="text-2xl custom-teal pt-20">Silahkan tambahkan kos mu</p>
-                    <div class="mt-8 flex justify-center">
-                        <a href="{{ route('kos.create') }}" class="w-24 h-24 bg-white rounded-full shadow-lg flex items-center justify-center text-teal-500 hover:bg-teal-50 hover:shadow-xl transition-all duration-300">
-                            <i class='bx bx-plus' style='font-size: 5rem;'></i>
-                        </a>
+            <!-- Grid Kartu Kos -->
+            <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-8">
+
+                <!-- Jabarin kos -->
+                @foreach ($kosCollection as $kos)
+                <div class="bg-white rounded-2xl shadow-lg overflow-hidden group transform hover:-translate-y-2 transition-transform duration-300">
+                    <!-- Gambar Kos -->
+                    <div class="relative">
+                        <img src="{{ asset('storage/' . $kos->foto) }}" alt="Foto {{ $kos->nama_kos }}" class="w-full h-48 object-cover">
+                        <div class="absolute inset-0 bg-black bg-opacity-20 group-hover:bg-opacity-40 transition-all duration-300"></div>
                     </div>
-
+                    <!-- Kartu Kos -->
+                    <div class="p-6">
+                        <h3 class="text-xl font-bold text-gray-800 truncate">{{ $kos->nama_kos }}</h3>
+                        <p class="text-gray-500 text-sm mt-2">
+                            Masih Tersedia {{-- Logika untuk kamar kosong bisa ditambahkan di sini --}}
+                        </p>
+                        <div class="mt-6">
+                            <a href="{{ route('kos.show', $kos->id) }}" class="w-full text-center inline-block px-4 py-2 bg-teal-600 border border-transparent rounded-lg font-semibold text-sm text-white hover:bg-teal-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-teal-500 transition-all duration-300">
+                                Lihat Detail
+                            </a>
+                        </div>
+                    </div>
                 </div>
+                @endforeach
+
+                <!-- Menambah Kos Baru -->
+                <a href="{{ route('kos.create') }}" class="flex items-center justify-center bg-white border-2 border-dashed border-gray-300 rounded-2xl shadow-lg hover:border-teal-500 hover:bg-gray-100 transition-all duration-300 min-h-[280px]">
+                    <div class="text-center">
+                        <div class="mx-auto flex items-center justify-center w-20 h-20 bg-gray-200 rounded-full group-hover:bg-teal-100">
+                            <i class='bx bx-plus text-4xl text-gray-500 group-hover:text-teal-600'></i>
+                        </div>
+                        <p class="mt-4 text-lg font-semibold text-gray-600">Tambah Kos</p>
+                    </div>
+                </a>
 
             </div>
-        </div>
-    </main>
 
+            @if($kosCollection->isEmpty())
+            <div class="text-center py-16 mt-8 bg-white rounded-lg shadow-md">
+                <p class="text-gray-500 text-lg">Anda belum memiliki data kos.</p>
+                <p class="mt-2 text-gray-500">Silakan klik kartu "Tambah Kos" untuk memulai.</p>
+            </div>
+            @endif
+
+        </div>
+    </div>
     <script>
         (function() {
             const btn = document.getElementById('profile-menu-button');
@@ -110,6 +145,4 @@
             });
         })();
     </script>
-</body>
-
-</html>
+    </hmtl>

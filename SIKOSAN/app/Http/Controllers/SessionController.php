@@ -2,9 +2,11 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\User;
+use App\Models\kos;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
-use App\Models\User;
+use Illuminate\Support\Facades\Hash;
 
 class SessionController extends Controller
 {
@@ -15,12 +17,35 @@ class SessionController extends Controller
 
     public function login(Request $request)
     {
-        $credentials = $request->only('email', 'password');
+        $request->validate([
+            'login' => 'required',
+            'password' => 'required',
+        ], [
+            'login.required' => 'Email atau Username wajib diisi.',
+            'password.required' => 'Password wajib diisi.',
+        ]);
+
+        $loginField = filter_var($request->login, FILTER_VALIDATE_EMAIL) ? 'email' : 'username';
+
+        $credentials = [
+            $loginField => $request->login,
+            'password' => $request->password,
+        ];
 
         if (Auth::attempt($credentials)) {
             $user = Auth::user();
+            $hasKos = User::where('id', $user->id)
+                ->whereHas('kos')
+                ->exists();
 
             if ($user->peran === 'Pemilik') {
+
+                if ($hasKos) {
+
+                    return redirect('/kos');
+                } else {
+                    return redirect('/Dpemilik');
+                }
                 return redirect('/Dpemilik');
             } elseif ($user->peran === 'Penghuni') {
                 return redirect('/DPenghuni');
@@ -30,27 +55,26 @@ class SessionController extends Controller
             }
         }
 
-        return redirect('/login')->with('error', 'Email atau password salah.');
+        return redirect('/login')->with('error', 'Kredensial yang dimasukkan tidak valid.');
     }
 
     public function register()
     {
-        return view('Authregister');
+        return view('Auth.register');
     }
 
     public function create(Request $request)
     {
         $request->validate([
-            'nama_lengkap' => 'required|string|max:255',
+            'username' => 'required|string|max:255|unique:users',
             'email' => 'required|string|email|max:255|unique:users',
             'password' => 'required|string|min:6|confirmed',
-            'peran' => 'required|in:Pemilik,Penghuni',
         ]);
 
         User::create([
-            'nama_lengkap' => $request->nama_lengkap,
+            'username' => $request->username,
             'email' => $request->email,
-            'password' => bcrypt($request->password),
+            'password' => Hash::make($request->password),
             'peran' => $request->peran,
         ]);
 

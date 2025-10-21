@@ -1,7 +1,7 @@
 <?php
 
 use App\Http\Controllers\SessionController;
-use App\Http\Controllers\UsersController;
+use App\Http\Controllers\PemilikController;
 use Illuminate\Support\Facades\Route;
 use Illuminate\Support\Facades\Auth;
 
@@ -15,21 +15,6 @@ Route::middleware(['guest'])->group(function () {
 
 // Routes untuk user yang sudah login
 Route::middleware(['auth'])->group(function () {
-    // Dashboard Penghuni
-    Route::get('/DPenghuni', function () {
-        if (Auth::user()->peran !== 'Penghuni') {
-            return redirect('/Dpemilik');
-        }
-        return app(UsersController::class)->dashboardPenghuni();
-    })->name('penghuni.dashboard');
-
-    // Dashboard Pemilik
-    Route::get('/Dpemilik', function () {
-        if (Auth::user()->peran !== 'Pemilik') {
-            return redirect('/DPenghuni');
-        }
-        return app(UsersController::class)->dashboardPemilik();
-    })->name('pemilik.dashboard');
 
     // Logout
     Route::get('/logout', function () {
@@ -40,16 +25,17 @@ Route::middleware(['auth'])->group(function () {
 
 // Route root (/)
 Route::get('/', function () {
-    return Auth::check() ? redirect('/home') : redirect('/login');
+    return Auth::check() ? redirect('/Dpemilik') : redirect('/login');
 });
 
-// Route home (penentu arah login)
-Route::get('/home', function () {
-    if (!Auth::check()) {
-        return redirect('/login');
-    }
+Route::middleware(['auth'])->group(function () {
+    // Route untuk dashboard utama
+    Route::get('/Dpemilik', [PemilikController::class, 'indexGG'])->name('pemilik.dashboard');
 
-    return Auth::user()->peran === 'Pemilik'
-        ? redirect('/Dpemilik')
-        : redirect('/DPenghuni');
-})->middleware('auth');
+    Route::get('/kos/create', [PemilikController::class, 'create'])->name('kos.create');
+    Route::post('/kos', [PemilikController::class, 'store'])->name('kos.store');
+    Route::get('/kos', [PemilikController::class, 'indexSK'])->name('kos.show');
+    Route::get('/kos/{kos}/edit', [PemilikController::class, 'edit'])->name('kos.edit');
+    Route::put('/kos/{kos}', [PemilikController::class, 'update'])->name('kos.update');
+    Route::delete('/kos/{kos}', [PemilikController::class, 'destroy'])->name('kos.destroy');
+});

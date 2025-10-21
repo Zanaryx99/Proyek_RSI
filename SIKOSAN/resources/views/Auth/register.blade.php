@@ -5,12 +5,8 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Register - Sikosan</title>
-
-    {{-- Memuat Aset dari Vite (Pastikan `npm run dev` berjalan) --}}
     @vite('resources/css/app.css')
     @vite('resources/js/app.js')
-
-    {{-- Google Fonts untuk estetika yang lebih baik --}}
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;700&display=swap" rel="stylesheet">
@@ -22,87 +18,82 @@
     </style>
 </head>
 
-{{-- Latar belakang default (kolom kiri) --}}
+<!-- Background -->
 
-<body class="bg-gray-100">
+<body class="bg-gray-100 h-screen overflow-hidden">
+    <div class="absolute top-0 right-0 h-screen w-1/2 bg-[#006A7A]"></div>
 
-    {{-- Kolom Kanan: Panel berwarna teal yang menutupi setengah layar --}}
-    <div class="absolute top-0 right-0 h-full w-1/2 bg-[#006A7A]"></div>
-
-    {{-- Header --}}
-    <header class="absolute top-0 left-0 w-full p-6 z-20">
+    <!-- Header -->
+    <header class="absolute bg-white top-0 left-0 w-full p-2 z-10 shadow-md">
         <div class="container mx-auto flex justify-between items-center">
-            <h1 class="text-2xl font-bold text-[#006A7A]">Sikosan</h1>
+            <h1 class="text-2xl font-bold ml-8 text-[#006A7A]">Sikosan</h1>
             <nav class="flex gap-6">
-                <a href="#" class="font-semibold text-gray-700 hover:text-black">contact</a>
-                <a href="#" class="font-semibold text-gray-700 hover:text-black">about us</a>
+                <a href="#" class="font-semibold mr-8 text-[#006A7A]">contact</a>
+                <a href="#" class="font-semibold mr-8 text-[#006A7A]">about us</a>
             </nav>
         </div>
     </header>
 
-    {{-- Konten Utama: Flex container untuk memusatkan kartu registrasi --}}
+    <!-- posisi kartu -->
     <main class="relative z-10 flex min-h-screen items-center justify-center py-12">
 
-        {{-- KARTU REGISTRASI --}}
-        <div class="w-full max-w-md p-8 space-y-4 bg-white rounded-2xl shadow-2xl">
+        <!-- ukuran kartu -->
+        <div class="w-full max-w-md p-6 mt-6 bg-white rounded-2xl shadow-2xl">
 
-            {{-- Judul di dalam kartu --}}
+            <!-- judul kartu -->
             <div class="text-center">
                 <h2 class="text-3xl font-bold text-[#006A7A]">Sikosan</h2>
                 <p class="text-gray-500">create an account</p>
             </div>
 
-            {{-- FORM --}}
             <form class="space-y-4" action="/register/create" method="POST">
                 @csrf
-
-                {{-- Input Username --}}
                 <div>
                     <label for="username" class="block text-sm font-medium text-gray-600">Username</label>
                     <input id="username" name="username" type="text" required value="{{ old('username') }}"
                         class="mt-1 w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-[#006A7A] focus:border-[#006A7A]">
+                    @error('username')
+                    <p class="text-red-500 text-xs mt-1">{{ $message }}</p>
+                    @enderror
                 </div>
 
-                {{-- Input Email --}}
                 <div>
                     <label for="email" class="block text-sm font-medium text-gray-600">Email</label>
                     <input id="email" name="email" type="email" required value="{{ old('email') }}"
                         class="mt-1 w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-[#006A7A] focus:border-[#006A7A]">
+                    @error('email')
+                    <p class="text-red-500 text-xs mt-1">{{ $message }}</p>
+                    @enderror
                 </div>
 
-                {{-- Input Password --}}
                 <div>
                     <label for="password" class="block text-sm font-medium text-gray-600">Password</label>
                     <input id="password" name="password" type="password" required
                         class="mt-1 w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-[#006A7A] focus:border-[#006A7A]">
                 </div>
 
-                {{-- Input Konfirmasi Password --}}
                 <div>
                     <label for="password_confirmation" class="block text-sm font-medium text-gray-600">Confirm Password</label>
                     <input id="password_confirmation" name="password_confirmation" type="password" required
                         class="mt-1 w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-[#006A7A] focus:border-[#006A7A]">
                 </div>
 
-                {{-- Pilihan Role (Radio Button) --}}
                 <div class="flex items-center gap-8 pt-2">
                     <div class="flex items-center">
-                        <input id="role-pemilik" name="role" type="radio" value="pemilik" checked class="h-4 w-4 text-[#006A7A] focus:ring-[#005663] border-gray-300">
+                        <input id="role-pemilik" name="peran" type="radio" value="pemilik" checked class="h-4 w-4 text-[#006A7A] focus:ring-[#005663] border-gray-300">
                         <label for="role-pemilik" class="ml-2 block text-sm text-gray-900">Pemilik</label>
                     </div>
                     <div class="flex items-center">
-                        <input id="role-penghuni" name="role" type="radio" value="penghuni" class="h-4 w-4 text-[#006A7A] focus:ring-[#005663] border-gray-300">
+                        <input id="role-penghuni" name="peran" type="radio" value="penghuni" class="h-4 w-4 text-[#006A7A] focus:ring-[#005663] border-gray-300">
                         <label for="role-penghuni" class="ml-2 block text-sm text-gray-900">Penghuni</label>
                     </div>
                 </div>
 
-                {{-- Checkbox Persetujuan --}}
                 <div class="flex items-center pt-2">
                     <input id="terms" name="terms" type="checkbox" required class="h-4 w-4 rounded border-gray-300 text-[#006A7A] focus:ring-[#005663]">
                     <label for="terms" class="ml-2 block text-sm text-gray-900">I agree to the Terms of Service</label>
                 </div>
 
-                {{-- Tombol Register --}}
                 <div class="pt-2">
                     <button type="submit"
                         class="w-full flex justify-center py-3 px-4 border border-transparent rounded-full shadow-sm text-lg font-bold text-white bg-[#006A7A] hover:bg-[#005663] transition-colors duration-200">
@@ -111,7 +102,7 @@
                 </div>
             </form>
 
-            {{-- Link Login --}}
+            <!--  redirect Login -->
             <div class="text-center">
                 <p class="text-sm text-gray-500">
                     already have an account?
