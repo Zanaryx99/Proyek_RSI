@@ -49,11 +49,31 @@
             <form class="space-y-6" action="/login" method="POST">
                 @csrf
 
+                @if(session('error'))
+                <div class="bg-red-50  rounded-md p-4">
+                    <p class="text-sm text-red-600">{{ session('error') }}</p>
+                </div>
+                @endif
+
+                {{-- Tampilkan validation errors --}}
+                @if ($errors->any())
+                <div class="bg-red-50  rounded-md p-4">
+                    <ul class="list-disc list-inside text-sm text-red-600">
+                        @foreach ($errors->all() as $error)
+                        <li>{{ $error }}</li>
+                        @endforeach
+                    </ul>
+                </div>
+                @endif
+
                 <div>
                     <label for="login" class="block text-sm font-medium text-gray-600">Email/Username</label>
                     <div class="mt-1">
                         <input id="login" name="login" type="text" required
                             class="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-[#006A7A] focus:border-[#006A7A]">
+                        @error('login')
+                        <p class="text-red-500 text-xs mt-1">{{ $message }}</p>
+                        @enderror
                     </div>
                 </div>
 
@@ -62,6 +82,9 @@
                     <div class="mt-1">
                         <input id="password" name="password" type="password" required
                             class="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-[#006A7A] focus:border-[#006A7A]">
+                        @error('password')
+                        <p class="mt-1 text-sm text-red-600">{{ $message }}</p>
+                        @enderror
                     </div>
                 </div>
 

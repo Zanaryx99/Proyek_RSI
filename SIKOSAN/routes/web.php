@@ -1,6 +1,7 @@
 <?php
 
 use App\Http\Controllers\SessionController;
+use App\Http\Controllers\penghuniController;
 use App\Http\Controllers\PemilikController;
 use Illuminate\Support\Facades\Route;
 use Illuminate\Support\Facades\Auth;
@@ -30,12 +31,18 @@ Route::get('/', function () {
 
 Route::middleware(['auth'])->group(function () {
     // Route untuk dashboard utama
-    Route::get('/Dpemilik', [PemilikController::class, 'indexGG'])->name('pemilik.dashboard');
+    Route::get('/Dpemilik', [PemilikController::class, 'indexSK'])->name('pemilik.dashboard');
+    Route::get('/Dpenghuni', [penghuniController::class, 'indexPi'])->name('penghuni.dashboard');
+    Route::get('/kontrolkos/{kos}', [PemilikController::class, 'kontrolKos'])->name('kos.kontrol');
 
+    Route::post('/join-kos', [PenghuniController::class, 'joinKos'])->name('join.kos');
     Route::get('/kos/create', [PemilikController::class, 'create'])->name('kos.create');
     Route::post('/kos', [PemilikController::class, 'store'])->name('kos.store');
+
     Route::get('/kos', [PemilikController::class, 'indexSK'])->name('kos.show');
+
     Route::get('/kos/{kos}/edit', [PemilikController::class, 'edit'])->name('kos.edit');
     Route::put('/kos/{kos}', [PemilikController::class, 'update'])->name('kos.update');
+
     Route::delete('/kos/{kos}', [PemilikController::class, 'destroy'])->name('kos.destroy');
 });

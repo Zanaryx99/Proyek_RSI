@@ -4,7 +4,7 @@
 <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width,initial-scale=1">
-    <title>Dashboard Pemilik</title>
+    <title>Dashboard isi Pemilik</title>
 
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;700&display=swap" rel="stylesheet">
@@ -14,10 +14,6 @@
         body {
             font-family: 'Poppins', sans-serif;
             background: #f0f4f8;
-        }
-
-        .custom-teal {
-            color: #00838F;
         }
 
         .rounded-card {
@@ -43,73 +39,285 @@
     </style>
 </head>
 
-<body class="min-h-screen">
-    <header class="fixed top-0 left-0 w-full bg-white shadow-sm z-10 border-b border-gray-200">
-        <div class="max-w-7xl mx-auto px-4 py-3 flex items-center justify-between">
-            <div class="flex items-center gap-3">
-                <div class="relative">
-                    <button id="profile-menu-button" class="flex items-center rounded-full focus:outline-none" aria-haspopup="true" aria-expanded="false">
-                        <div class="w-10 h-10 flex items-center justify-center bg-purple-100 rounded-full">
-                            <i class='bx bxs-user bx-sm text-purple-500'></i>
-                        </div>
+<header class="fixed top-0 left-0 w-full bg-white shadow-sm z-10 border-b border-gray-200">
+    <div class="max-w-7xl mx-auto px-4 py-3 flex items-center justify-between">
+
+        <div class="flex items-center gap-3">
+
+            <div class="relative">
+                <button id="profile-menu-button" class="flex items-center rounded-full focus:outline-none" aria-haspopup="true" aria-expanded="false">
+                    <div class="w-10 h-10 flex items-center justify-center bg-purple-100 rounded-full">
+                        <i class='bx bxs-user bx-sm text-purple-500'></i>
+                    </div>
+                </button>
+
+
+                <div id="profile-menu" class="hidden absolute left-0 mt-2 w-48 bg-white rounded-md shadow py-1 ring-1 ring-black ring-opacity-5">
+                    <a href="#" class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">Profil Saya</a>
+                    <button onclick="openLogoutModal()" class="w-full text-left px-4 py-2 text-sm text-red-600 font-semibold hover:bg-gray-100">
+                        Logout
                     </button>
-
-                    <div id="profile-menu" class="hidden absolute left-0 mt-2 w-48 bg-white rounded-md shadow py-1 ring-1 ring-black ring-opacity-5">
-                        <a href="#" class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">Profil Saya</a>
-                        <a href="/logout" class="block px-4 py-2 text-sm text-red-600 font-semibold hover:bg-gray-100">Logout</a>
-                    </div>
                 </div>
-
-                <span class="text-2xl font-bold text-teal-700">Sikosan</span>
             </div>
 
-            <nav class="flex items-center space-x-6 md:space-x-8 text-sm md:text-base">
-                <a href="#" class="text-teal-700 font-semibold ">contact</a>
-                <a href="#" class="text-teal-700 font-semibold ">about us</a>
-            </nav>
+            <span class="text-2xl font-bold text-teal-700">Sikosan</span>
+
         </div>
-    </header>
+        <nav class="flex items-center space-x-6 md:space-x-8 text-sm md:text-base">
+            <a href="#" class="text-teal-700 font-semibold">contact</a>
+            <a href="#" class="text-teal-700 font-semibold">about us</a>
+        </nav>
 
-    <main class="flex items-center justify-center h-full px-60">
-        <div class=" w-full max-w-5xl mx-auto p-8">
-            <div class="p-12 text-center flex flex-col items-center">
+    </div>
+</header>
 
-                <h1 class="text-4xl font-bold custom-teal">Selamat Datang di Sikosan</h1>
-                <p class="text-lg text-gray-500 mt-2">kamu belum mendaftarkan kos</p>
+<main class="pt-24 pb-12">
+    <div class="max-w-7xl mx-auto px-4">
+        @if($kosCollection->isEmpty())
+        <main class="flex items-center justify-center h-full px-60">
+            <div class=" w-full max-w-5xl mx-auto p-8">
+                <div class="p-12 text-center flex flex-col items-center">
 
-                <div class="my-12">
-                    <p class="text-2xl custom-teal pt-20">Silahkan tambahkan kos mu</p>
-                    <div class="mt-8 flex justify-center">
-                        <a href="{{ route('kos.create') }}" class="w-24 h-24 bg-white rounded-full shadow-lg flex items-center justify-center text-teal-500 hover:bg-teal-50 hover:shadow-xl transition-all duration-300">
-                            <i class='bx bx-plus' style='font-size: 5rem;'></i>
-                        </a>
+                    <h1 class="text-4xl font-bold text-teal-700">Selamat Datang di Sikosan</h1>
+                    <p class="text-lg text-teal-700 mt-2">kamu belum mendaftarkan kos</p>
+
+                    <div class="my-12">
+                        <p class="text-2xl text-teal-700 pt-20">Silahkan tambahkan kos mu</p>
+                        <div class="mt-8 flex justify-center">
+                            <a href="{{ route('kos.create') }}" class="w-24 h-24 bg-white rounded-full shadow-lg flex items-center justify-center text-teal-500 hover:bg-teal-50 hover:shadow-xl transition-all duration-300">
+                                <i class='bx bx-plus' style='font-size: 5rem;'></i>
+                            </a>
+                        </div>
+
                     </div>
 
                 </div>
+            </div>
+        </main>
+        @else
 
+        <div class="mb-8">
+            <h1 class="text-4xl font-bold text-teal-800">Daftar Kos Anda</h1>
+            <p class="text-gray-600 mt-2">Kelola semua properti kos Anda dari sini.</p>
+        </div>
+
+        <!-- Grid Kartu Kos -->
+        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+
+            <!-- Loop Kartu Kos -->
+            @foreach ($kosCollection as $kos)
+            <div class="bg-white rounded-2xl shadow-lg overflow-hidden group transform hover:-translate-y-2 transition-transform duration-300">
+                <!-- Gambar Kos -->
+                <div class="relative">
+                    <img
+                        src="{{ $kos->foto ? asset('storage/' . $kos->foto) : asset('images/placeholder.png') }}"
+                        alt="Foto {{ $kos->nama_kos }}"
+                        class="w-full h-48 object-cover">
+                    <div class="absolute inset-0 bg-black bg-opacity-20 group-hover:bg-opacity-40 transition-all duration-300"></div>
+                </div>
+                <!-- Konten Kartu Kos -->
+                <div class="p-6">
+                    <h3 class="text-xl font-bold text-gray-800 truncate">{{ $kos->nama_kos }}</h3>
+                    <p class="text-gray-500 text-sm mt-2">
+                        Masih Tersedia {{-- Logika untuk kamar kosong bisa ditambahkan di sini --}}
+                    </p>
+                    <div class="mt-6 space-y-2">
+                        <div class="flex items-center space-x-2">
+                            <a href="{{ route('kos.edit', $kos->id) }}" class="w-full text-center px-4 py-2 bg-green-500 text-white text-sm font-semibold rounded-lg hover:bg-green-600 transition-colors">
+                                <i class='bx bx-edit-alt'></i> Edit
+                            </a>
+                            <form action="{{ route('kos.destroy', $kos->id) }}" method="POST" class="w-full" onsubmit="return confirm('Apakah Anda yakin ingin menghapus kos ini?');">
+                                <button
+                                    onclick="openDeleteModal('{{ $kos->id }}', '{{ addslashes($kos->nama_kos) }}')"
+                                    type="button"
+                                    class="w-full px-4 py-2 bg-red-500 text-white text-sm font-semibold rounded-lg hover:bg-red-600 transition-colors">
+                                    <i class='bx bx-trash'></i> Hapus
+                                </button>
+                            </form>
+                        </div>
+                        <div>
+                            <a href="{{ route('kos.kontrol', $kos->id) }}" class="w-full text-center inline-block px-4 py-2 bg-teal-600 border border-transparent rounded-lg font-semibold text-sm text-white hover:bg-teal-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-teal-500 transition-all duration-300">
+                                Lihat Detail
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            @endforeach
+
+            <!-- Kartu Tambah Kos Baru -->
+            <a href="{{ route('kos.create') }}" class="flex items-center justify-center bg-white border-2 border-dashed border-gray-300 rounded-2xl shadow-lg hover:border-teal-500 hover:bg-gray-100 transition-all duration-300 min-h-[400px] group">
+                <div class="text-center">
+                    <div class="mx-auto flex items-center justify-center w-20 h-20 bg-gray-200 rounded-full group-hover:bg-teal-100 transition-colors">
+                        <i class='bx bx-plus text-4xl text-gray-500 group-hover:text-teal-600'></i>
+                    </div>
+                    <p class="mt-4 text-lg font-semibold text-gray-600">Tambah Kos</p>
+                </div>
+            </a>
+
+        </div>
+        @endif
+
+    </div>
+</main>
+
+<!-- Logout Modal -->
+<div id="logoutModal" class="hidden fixed inset-0 z-50 overflow-y-auto">
+    <div class="flex items-center justify-center min-h-screen px-4 pt-4 pb-20 text-center sm:block sm:p-0">
+
+        <div class="fixed inset-0 bg-gray-900 bg-opacity-75 transition-opacity" onclick="closeLogoutModal()"></div>
+
+
+        <div class="inline-block align-bottom bg-white rounded-2xl text-left overflow-hidden shadow-xl transform transition-all sm:my-8 sm:align-middle sm:max-w-lg sm:w-full">
+            <div class="bg-white px-4 pt-5 pb-4 sm:p-6 sm:pb-4">
+                <div class="sm:flex sm:items-start">
+                    <div class="mx-auto flex-shrink-0 flex items-center justify-center h-12 w-12 rounded-full bg-red-100 sm:mx-0">
+                        <i class='bx bx-log-out text-2xl text-red-600'></i>
+                    </div>
+                    <div class="mt-3 text-center sm:mt-0 sm:ml-4 sm:text-left">
+                        <h3 class="text-xl leading-6 font-bold text-gray-900">
+                            Konfirmasi Logout
+                        </h3>
+                        <div class="mt-2">
+                            <p class="text-sm text-gray-600">
+                                Apakah Anda yakin ingin keluar dari akun ini?
+                            </p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="bg-gray-50 px-4 py-3 sm:px-6 sm:flex sm:flex-row-reverse gap-3">
+                <form action="/logout" method="GET" class="w-full sm:w-auto">
+                    <button type="submit" class="w-full inline-flex justify-center rounded-lg border border-transparent shadow-sm px-6 py-2.5 bg-red-600 text-base font-semibold text-white hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-red-500 transition-colors sm:w-auto sm:text-sm">
+                        <i class='bx bx-log-out mr-2'></i>
+                        Ya, Logout
+                    </button>
+                </form>
+                <button type="button" onclick="closeLogoutModal()" class="mt-3 w-full inline-flex justify-center rounded-lg border border-gray-300 shadow-sm px-6 py-2.5 bg-white text-base font-semibold text-gray-700 hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-teal-500 transition-colors sm:mt-0 sm:w-auto sm:text-sm">
+                    Batal
+                </button>
             </div>
         </div>
-    </main>
+    </div>
+</div>
 
-    <script>
-        (function() {
-            const btn = document.getElementById('profile-menu-button');
-            const menu = document.getElementById('profile-menu');
+<!-- Delete Modal -->
+<div id="deleteModal" class="hidden fixed inset-0 z-50 overflow-y-auto">
+    <div class="flex items-center justify-center min-h-screen px-4 pt-4 pb-20 text-center sm:block sm:p-0">
 
-            if (!btn || !menu) return;
+        <div class="modal-overlay fixed inset-0 bg-gray-900 bg-opacity-75 transition-opacity" onclick="closeDeleteModal()"></div>
 
-            btn.addEventListener('click', (e) => {
-                e.stopPropagation();
-                menu.classList.toggle('hidden');
-            });
 
-            document.addEventListener('click', (e) => {
-                if (!menu.classList.contains('hidden') && !menu.contains(e.target) && !btn.contains(e.target)) {
-                    menu.classList.add('hidden');
-                }
-            });
-        })();
-    </script>
+        <div class="modal-content inline-block align-bottom bg-white rounded-2xl text-left overflow-hidden shadow-xl transform transition-all sm:my-8 sm:align-middle sm:max-w-lg sm:w-full">
+            <div class="bg-white px-4 pt-5 pb-4 sm:p-6 sm:pb-4">
+                <div class="sm:flex sm:items-start">
+                    <div class="mx-auto flex-shrink-0 flex items-center justify-center h-16 w-16 rounded-full bg-red-100 sm:mx-0 sm:h-12 sm:w-12">
+                        <i class='bx bx-error text-3xl text-red-600'></i>
+                    </div>
+                    <div class="mt-3 text-center sm:mt-0 sm:ml-4 sm:text-left">
+                        <h3 class="text-xl leading-6 font-bold text-gray-900" id="modal-title">
+                            Hapus Kos
+                        </h3>
+                        <div class="mt-3">
+                            <p class="text-sm text-gray-600">
+                                Apakah Anda yakin ingin menghapus kos <span id="kosName" class="font-semibold text-gray-900"></span>?
+                            </p>
+                            <p class="text-sm text-red-600 mt-2">
+                                <i class='bx bx-info-circle'></i> Tindakan ini tidak dapat dibatalkan!
+                            </p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="bg-gray-50 px-4 py-3 sm:px-6 sm:flex sm:flex-row-reverse gap-3">
+                <form id="deleteForm" method="POST" class="w-full sm:w-auto">
+                    @csrf
+                    @method('DELETE')
+                    <button type="submit" class="w-full inline-flex justify-center rounded-lg border border-transparent shadow-sm px-6 py-2.5 bg-red-600 text-base font-semibold text-white hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-red-500 transition-colors sm:w-auto sm:text-sm">
+                        <i class='bx bx-trash mr-2'></i>
+                        Ya, Hapus
+                    </button>
+                </form>
+                <button type="button" onclick="closeDeleteModal()" class="mt-3 w-full inline-flex justify-center rounded-lg border border-gray-300 shadow-sm px-6 py-2.5 bg-white text-base font-semibold text-gray-700 hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-teal-500 transition-colors sm:mt-0 sm:w-auto sm:text-sm">
+                    Batal
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    (function() {
+        const btn = document.getElementById('profile-menu-button');
+        const menu = document.getElementById('profile-menu');
+
+        if (!btn || !menu) return;
+
+        btn.addEventListener('click', (e) => {
+            e.stopPropagation();
+            menu.classList.toggle('hidden');
+        });
+
+        document.addEventListener('click', (e) => {
+            if (!menu.classList.contains('hidden') && !menu.contains(e.target) && !btn.contains(e.target)) {
+                menu.classList.add('hidden');
+            }
+        });
+    })();
+
+
+    function openLogoutModal() {
+        const modal = document.getElementById('logoutModal');
+        modal.classList.remove('hidden');
+        document.body.style.overflow = 'hidden';
+
+
+        document.getElementById('profile-menu').classList.add('hidden');
+    }
+
+    function closeLogoutModal() {
+        const modal = document.getElementById('logoutModal');
+        modal.classList.add('hidden');
+        document.body.style.overflow = 'auto';
+    }
+
+
+    document.addEventListener('keydown', function(e) {
+        if (e.key === 'Escape') {
+            closeLogoutModal();
+            closeDeleteModal();
+        }
+    });
+
+
+    function openDeleteModal(kosId, kosName) {
+        const modal = document.getElementById('deleteModal');
+        const form = document.getElementById('deleteForm');
+        const nameSpan = document.getElementById('kosName');
+
+
+        form.action = `/kos/${kosId}`;
+
+        nameSpan.textContent = kosName;
+
+
+        modal.classList.remove('hidden');
+        document.body.style.overflow = 'hidden';
+    }
+
+    function closeDeleteModal() {
+        const modal = document.getElementById('deleteModal');
+        modal.classList.add('hidden');
+        document.body.style.overflow = 'auto';
+    }
+
+
+    document.addEventListener('keydown', function(e) {
+        if (e.key === 'Escape') {
+            closeDeleteModal();
+        }
+    });
+</script>
 </body>
 
 </html>
