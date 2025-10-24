@@ -17,7 +17,7 @@ class SessionController extends Controller
 
     public function login(Request $request)
     {
-        $request->validate([
+        $credentials = $request->validate([
             'login' => 'required',
             'password' => 'required',
         ], [
@@ -39,24 +39,27 @@ class SessionController extends Controller
                 ->exists();
 
             if ($user->peran === 'Pemilik') {
+                // Cek apakah punya kos
+                $hasKos = User::where('id', $user->id)
+                    ->whereHas('kos')
+                    ->exists();
 
-                if ($hasKos) {
-
-                    return redirect('/kos');
-                } else {
-                    return redirect('/Dpemilik');
-                }
-                return redirect('/Dpemilik');
-            } elseif ($user->peran === 'Penghuni') {
-                return redirect('/DPenghuni');
-            } else {
-                Auth::logout();
-                return redirect('/login')->with('error', 'Peran tidak valid.');
+                return $hasKos ? redirect('/kos') : redirect('/Dpemilik');
             }
+
+            if ($user->peran === 'Penghuni') {
+                return redirect('/Dpenghuni');
+            }
+
+            Auth::logout();
+            return redirect('/login')->with('error', 'Peran tidak valid.');
         }
 
-        return redirect('/login')->with('error', 'Kredensial yang dimasukkan tidak valid.');
+        return back()
+            ->withInput()  // Tambahkan ini untuk mempertahankan input lama
+            ->with('error', 'Email/Username atau Password salah.');
     }
+
 
     public function register()
     {
@@ -65,11 +68,29 @@ class SessionController extends Controller
 
     public function create(Request $request)
     {
-        $request->validate([
-            'username' => 'required|string|max:255|unique:users',
-            'email' => 'required|string|email|max:255|unique:users',
-            'password' => 'required|string|min:6|confirmed',
-        ]);
+        $request->validate(
+            [
+                'username' => 'required|string|max:255|unique:users',
+                'email' => 'required|string|email|max:255|unique:users',
+                'password' => 'required|string|min:6|confirmed',
+            ],
+            [
+                // Username errors
+                'username.required' => 'Username wajib diisi',
+                'username.unique' => 'Username ini sudah digunakan, silakan pilih username lain',
+
+                // Email errors
+                'email.required' => 'Email wajib diisi',
+                'email.email' => 'Format email tidak valid',
+                'email.unique' => 'Email ini sudah terdaftar, silakan gunakan email lain',
+
+                // Password errors
+                'password.required' => 'Password wajib diisi',
+                'password.min' => 'Password minimal harus 6 karakter',
+                'password_confirmation.required' => 'Konfirmasi password wajib diisi',
+                'password_confirmation.same' => 'Konfirmasi password tidak sama dengan password'
+            ]
+        );
 
         User::create([
             'username' => $request->username,

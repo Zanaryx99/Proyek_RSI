@@ -4,7 +4,7 @@
 <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width,initial-scale=1">
-    <title>Pendaftaran Kos</title>
+    <title>{{ isset($kos) ? 'Edit' : 'Pendaftaran' }} Kos</title>
 
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;700&display=swap" rel="stylesheet">
@@ -77,10 +77,28 @@
         </div>
     </header>
 
-    <main class="pt-24 flex justify-center">
+    <main class="pt-24 pb-12 flex justify-center">
         <div class="w-full max-w-2xl bg-white p-8 md:p-12 rounded-3xl shadow-xl">
-            <h2 class="text-center text-3xl font-bold text-teal-700 mb-8">Pendaftaran Kos</h2>
+            <!-- Header dengan tombol kembali -->
+            <div class="flex items-center justify-between mb-8">
+                <a href="{{ route('pemilik.dashboard') }}" class="flex items-center text-teal-600 hover:text-teal-700 transition-colors">
+                    <i class='bx bx-arrow-back text-2xl mr-2'></i>
+                    <span class="font-medium">Kembali</span>
+                </a>
+                <h2 class="text-3xl font-bold text-teal-700">
+                    {{ isset($kos) ? 'Edit Kos' : 'Pendaftaran Kos' }}
+                </h2>
+                <div class="w-24"></div> <!-- Spacer untuk centering -->
+            </div>
 
+            <!-- Success Message -->
+            @if(session('success'))
+            <div class="bg-green-100 border border-green-400 text-green-700 px-4 py-3 rounded relative mb-6" role="alert">
+                <span class="block sm:inline">{{ session('success') }}</span>
+            </div>
+            @endif
+
+            <!-- Error Messages -->
             @if ($errors->any())
             <div class="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded relative mb-6" role="alert">
                 <strong class="font-bold">Oops!</strong>
@@ -93,18 +111,45 @@
             </div>
             @endif
 
-            <form action="{{ route('kos.store') }}" method="POST" enctype="multipart/form-data" class="space-y-6">
+            <!-- Form akan dinamis berdasarkan mode (create/update) -->
+            <form action="{{ isset($kos) ? route('kos.update', $kos->id) : route('kos.store') }}"
+                method="POST"
+                enctype="multipart/form-data"
+                class="space-y-6">
                 @csrf
+                @if(isset($kos))
+                @method('PUT')
+                @endif
 
                 <div>
                     <label for="nama_kos" class="block text-sm font-medium text-gray-600 mb-1">Nama Kos</label>
-                    <input type="text" name="nama_kos" id="nama_kos" class="w-full border-gray-300 rounded-md shadow-sm focus:border-teal-500 focus:ring-teal-500" value="{{ old('nama_kos') }}" required>
+                    <input type="text"
+                        name="nama_kos"
+                        id="nama_kos"
+                        class="w-full border border-gray-300 rounded-md shadow-sm focus:border-teal-500 focus:ring-teal-500 px-4 py-2"
+                        value="{{ old('nama_kos', $kos->nama_kos ?? '') }}"
+                        required>
                 </div>
 
                 <div>
-                    <label for="foto-upload" class="block text-sm font-medium text-gray-600 mb-1">Foto Kos</label>
+                    <label for="foto-upload" class="block text-sm font-medium text-gray-600 mb-1">
+                        Foto Kos
+                        @if(isset($kos))
+                        <span class="text-xs text-gray-500">(Biarkan kosong jika tidak ingin mengubah foto)</span>
+                        @endif
+                    </label>
 
-                    <div id="dropzone" class="mt-1 flex flex-col items-center px-6 pt-5 pb-6 border-2 border-gray-300 border-dashed rounded-md cursor-pointer"
+                    <!-- Preview foto lama jika mode edit -->
+                    @if(isset($kos) && $kos->foto)
+                    <div class="mb-4 p-4 bg-gray-50 rounded-lg border border-gray-200">
+                        <p class="text-sm text-gray-600 mb-2 font-medium">Foto saat ini:</p>
+                        <img src="{{ asset('storage/' . $kos->foto) }}"
+                            alt="Foto {{ $kos->nama_kos }}"
+                            class="img-preview mx-auto border border-gray-300">
+                    </div>
+                    @endif
+
+                    <div id="dropzone" class="mt-1 flex flex-col items-center px-6 pt-5 pb-6 border-2 border-gray-300 border-dashed rounded-md cursor-pointer hover:border-teal-400 transition-colors"
                         aria-describedby="file-upload-desc">
                         <div class="space-y-1 text-center">
                             <svg class="mx-auto h-12 w-12 text-gray-400" stroke="currentColor" fill="none" viewBox="0 0 48 48" aria-hidden="true">
@@ -112,49 +157,75 @@
                             </svg>
 
                             <div class="flex text-sm text-gray-600 items-center justify-center gap-2">
-                                <button type="button" id="btn-browse" class="bg-white rounded-md font-medium text-teal-600 hover:text-teal-500 px-3 py-1">Upload a file</button>
+                                <button type="button" id="btn-browse" class="bg-white rounded-md font-medium text-teal-600 hover:text-teal-500 px-3 py-1 border border-teal-300">
+                                    Upload {{ isset($kos) ? 'foto baru' : 'a file' }}
+                                </button>
                                 <p class="pl-1 text-sm">atau taruh ke sini</p>
                             </div>
 
                             <p class="text-xs text-gray-500">PNG, JPG, GIF up to 2MB</p>
                         </div>
 
-                        <input id="foto-upload" name="foto" type="file" accept="image/*" class="hidden" required>
+                        <input id="foto-upload"
+                            name="foto"
+                            type="file"
+                            accept="image/*"
+                            class="hidden"
+                            {{ isset($kos) ? '' : 'required' }}>
                         <div id="preview-area" class="mt-4 w-full hidden">
-                            <img id="img-preview" class="img-preview mx-auto" src="#" alt="Preview foto" />
+                            <img id="img-preview" class="img-preview mx-auto border border-gray-300" src="#" alt="Preview foto" />
                             <p id="file-name" class="text-center text-sm text-gray-600 mt-2"></p>
+                            <button type="button"
+                                id="btn-remove-preview"
+                                class="mx-auto mt-2 block text-red-600 hover:text-red-700 text-sm font-medium">
+                                <i class='bx bx-x-circle'></i> Hapus Preview
+                            </button>
                         </div>
                     </div>
                 </div>
 
                 <div>
                     <label for="jenis" class="block text-sm font-medium text-gray-600 mb-1">Jenis Kos</label>
-                    <select name="jenis" id="jenis" class="w-full border-gray-300 rounded-md shadow-sm focus:border-teal-500 focus:ring-teal-500" required>
+                    <select name="jenis" id="jenis" class="w-full border border-gray-300 rounded-md shadow-sm focus:border-teal-500 focus:ring-teal-500 px-4 py-2" required>
                         <option value="">-- Pilih Jenis Kos --</option>
-                        <option value="Pria" { }>Pria</option>
-                        <option value="Wanita" { }>Wanita</option>
-                        <option value="Campur" { }>Campur</option>
+                        <option value="Pria" {{ old('jenis', $kos->jenis ?? '') == 'Pria' ? 'selected' : '' }}>Pria</option>
+                        <option value="Wanita" {{ old('jenis', $kos->jenis ?? '') == 'Wanita' ? 'selected' : '' }}>Wanita</option>
+                        <option value="Campur" {{ old('jenis', $kos->jenis ?? '') == 'Campur' ? 'selected' : '' }}>Campur</option>
                     </select>
                 </div>
 
                 <div>
                     <label for="lokasi" class="block text-sm font-medium text-gray-600 mb-1">Lokasi</label>
-                    <textarea name="lokasi" id="lokasi" rows="3" class="w-full border-gray-300 rounded-md shadow-sm focus:border-teal-500 focus:ring-teal-500" required>{{ old('lokasi') }}</textarea>
+                    <textarea name="lokasi"
+                        id="lokasi"
+                        rows="3"
+                        class="w-full border border-gray-300 rounded-md shadow-sm focus:border-teal-500 focus:ring-teal-500 px-4 py-2"
+                        required>{{ old('lokasi', $kos->lokasi ?? '') }}</textarea>
                 </div>
 
                 <div>
                     <label for="fasilitas_umum" class="block text-sm font-medium text-gray-600 mb-1">Fasilitas Umum</label>
-                    <textarea name="fasilitas_umum" id="fasilitas_umum" rows="3" class="w-full border-gray-300 rounded-md shadow-sm focus:border-teal-500 focus:ring-teal-500" required>{{ old('fasilitas_umum') }}</textarea>
+                    <textarea name="fasilitas_umum"
+                        id="fasilitas_umum"
+                        rows="3"
+                        class="w-full border border-gray-300 rounded-md shadow-sm focus:border-teal-500 focus:ring-teal-500 px-4 py-2"
+                        required>{{ old('fasilitas_umum', $kos->fasilitas_umum ?? '') }}</textarea>
                 </div>
 
                 <div>
                     <label for="peraturan_umum" class="block text-sm font-medium text-gray-600 mb-1">Peraturan Umum</label>
-                    <textarea name="peraturan_umum" id="peraturan_umum" rows="3" class="w-full border-gray-300 rounded-md shadow-sm focus:border-teal-500 focus:ring-teal-500" required>{{ old('peraturan_umum') }}</textarea>
+                    <textarea name="peraturan_umum"
+                        id="peraturan_umum"
+                        rows="3"
+                        class="w-full border border-gray-300 rounded-md shadow-sm focus:border-teal-500 focus:ring-teal-500 px-4 py-2"
+                        required>{{ old('peraturan_umum', $kos->peraturan_umum ?? '') }}</textarea>
                 </div>
 
-                <div class="pt-4">
-                    <button type="submit" class="w-full bg-teal-600 text-white font-bold py-3 px-4 rounded-md hover:bg-teal-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-teal-500 transition-all duration-300">
-                        Daftarkan
+                <div class="pt-4 flex gap-3">
+                    <button type="submit"
+                        class="flex-1 bg-teal-600 text-white font-bold py-3 px-4 rounded-md hover:bg-teal-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-teal-500 transition-all duration-300">
+                        <i class='bx {{ isset($kos) ? "bx-save" : "bx-check-circle" }}'></i>
+                        {{ isset($kos) ? 'Simpan Perubahan' : 'Daftarkan' }}
                     </button>
                 </div>
             </form>
@@ -180,6 +251,7 @@
             const dropzone = document.getElementById('dropzone');
             const fileInput = document.getElementById('foto-upload');
             const btnBrowse = document.getElementById('btn-browse');
+            const btnRemovePreview = document.getElementById('btn-remove-preview');
             const previewArea = document.getElementById('preview-area');
             const imgPreview = document.getElementById('img-preview');
             const fileNameEl = document.getElementById('file-name');
@@ -210,25 +282,47 @@
                 showPreview(file);
             }
 
-            btnBrowse.addEventListener('click', () => fileInput.click());
-            dropzone.addEventListener('click', () => fileInput.click());
+            btnBrowse.addEventListener('click', (e) => {
+                e.stopPropagation();
+                fileInput.click();
+            });
+
+            dropzone.addEventListener('click', (e) => {
+                if (e.target !== btnBrowse && !btnBrowse.contains(e.target)) {
+                    fileInput.click();
+                }
+            });
 
             fileInput.addEventListener('change', (e) => {
                 const f = e.target.files && e.target.files[0];
                 handleFile(f);
             });
 
+            // Remove preview button
+            if (btnRemovePreview) {
+                btnRemovePreview.addEventListener('click', (e) => {
+                    e.stopPropagation();
+                    fileInput.value = '';
+                    previewArea.classList.add('hidden');
+                    imgPreview.src = '#';
+                    fileNameEl.textContent = '';
+                });
+            }
+
             dropzone.addEventListener('dragover', (e) => {
                 e.preventDefault();
-                dropzone.classList.add('bg-teal-50');
+                dropzone.classList.add('bg-teal-50', 'border-teal-400');
             });
-            dropzone.addEventListener('dragleave', () => dropzone.classList.remove('bg-teal-50'));
+
+            dropzone.addEventListener('dragleave', () => {
+                dropzone.classList.remove('bg-teal-50', 'border-teal-400');
+            });
+
             dropzone.addEventListener('drop', (e) => {
                 e.preventDefault();
-                dropzone.classList.remove('bg-teal-50');
+                dropzone.classList.remove('bg-teal-50', 'border-teal-400');
                 const f = e.dataTransfer.files && e.dataTransfer.files[0];
                 if (f) {
-
                     const dt = new DataTransfer();
                     dt.items.add(f);
                     fileInput.files = dt.files;

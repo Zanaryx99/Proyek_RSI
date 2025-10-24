@@ -20,8 +20,8 @@
 
 <!-- Background -->
 
-<body class="bg-gray-100 h-screen overflow-hidden">
-    <div class="absolute top-0 right-0 h-screen w-1/2 bg-[#006A7A]"></div>
+<body class="bg-gray-100 h-screen overflow">
+    <div class="absolute top-0 right-0 h-screen w-1/2 bg-[#006A7A] mt-10"></div>
 
     <!-- Header -->
     <header class="absolute bg-white top-0 left-0 w-full p-2 z-10 shadow-md">
@@ -70,12 +70,18 @@
                     <label for="password" class="block text-sm font-medium text-gray-600">Password</label>
                     <input id="password" name="password" type="password" required
                         class="mt-1 w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-[#006A7A] focus:border-[#006A7A]">
+                    @error('password')
+                    <p class="mt-1 text-sm text-red-500">{{ $message }}</p>
+                    @enderror
                 </div>
 
                 <div>
                     <label for="password_confirmation" class="block text-sm font-medium text-gray-600">Confirm Password</label>
                     <input id="password_confirmation" name="password_confirmation" type="password" required
                         class="mt-1 w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-[#006A7A] focus:border-[#006A7A]">
+                    @error('password_confirmation')
+                    <p class="mt-1 text-sm text-red-500">{{ $message }}</p>
+                    @enderror
                 </div>
 
                 <div class="flex items-center gap-8 pt-2">
