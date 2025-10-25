@@ -20,7 +20,12 @@ class User extends Authenticatable
         'username',
         'email',
         'password',
-        'peran'
+        'foto_profile',
+        'nama_lengkap', // Pastikan ada
+        'jenis_kelamin', // Pastikan ada
+        'no_telepon', // Pastikan ada
+        'peran',
+        'id_kos',
     ];
 
     /**
