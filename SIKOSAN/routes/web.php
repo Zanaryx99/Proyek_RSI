@@ -35,7 +35,10 @@ Route::middleware(['auth'])->group(function () {
     Route::get('/Dpenghuni', [penghuniController::class, 'indexPi'])->name('penghuni.dashboard');
     Route::get('/kontrolkos/{kos}', [PemilikController::class, 'kontrolKos'])->name('kos.kontrol');
 
-    Route::post('/join-kos', [PenghuniController::class, 'joinKos'])->name('join.kos');
+    // Tambahkan route ini di dalam group middleware auth
+    Route::put('/profile/update', [penghuniController::class, 'update'])->name('profile.update');
+    Route::get('/profil-penghuni', [penghuniController::class, 'profil'])->name('profil.penghuni');
+    Route::post('/join-kos', [penghuniController::class, 'joinKos'])->name('join.kos');
     Route::get('/kos/create', [PemilikController::class, 'create'])->name('kos.create');
     Route::post('/kos', [PemilikController::class, 'store'])->name('kos.store');
 
