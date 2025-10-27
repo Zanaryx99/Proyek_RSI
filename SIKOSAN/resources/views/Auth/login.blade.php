@@ -23,17 +23,6 @@
 <body class="bg-gray-100">
     <div class="absolute top-0 right-0 h-full w-1/2 bg-[#006A7A]"></div>
 
-    <!-- Header -->
-    <header class="absolute bg-white top-0 left-0 w-full p-2 z-10 shadow-md">
-        <div class="container mx-auto flex justify-between items-center">
-            <h1 class="text-2xl font-bold ml-8 text-[#006A7A]">Sikosan</h1>
-            <nav class="flex gap-6">
-                <a href="#" class="font-semibold mr-8 text-[#006A7A]">contact</a>
-                <a href="#" class="font-semibold mr-8 text-[#006A7A]">about us</a>
-            </nav>
-        </div>
-    </header>
-
     <!-- posisi kartu -->
     <main class="relative z-10 flex min-h-screen items-center justify-center">
 

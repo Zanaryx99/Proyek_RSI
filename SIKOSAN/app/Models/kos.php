@@ -24,5 +24,10 @@ class Kos extends Model
         return $this->belongsTo(User::class);
     }
 
+    public function kamars()
+    {
+        return $this->hasMany(Kamar::class);
+    }
+
     protected $table = 'kos';
 }

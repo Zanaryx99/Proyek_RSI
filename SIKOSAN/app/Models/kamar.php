@@ -4,6 +4,7 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Support\Str;
 
 class kamar extends Model
 {
@@ -14,13 +15,14 @@ class kamar extends Model
 
     protected $fillable = [
         'user_id',
-        'kos_id',
+        'kamar_id',
         'nama_kamar',
         'harga_sewa',
         'minimal_waktu_sewa',
         'deskripsi',
         'tipe_kamar',
         'foto_kamar',
+        'status_ketersediaan'
     ];
 
     /**

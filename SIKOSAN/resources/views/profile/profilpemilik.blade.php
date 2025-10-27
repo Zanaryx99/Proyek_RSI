@@ -4,14 +4,11 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Sikosan - Detail Akun</title>
+    <title>Sikosan - Profil Pemilik</title>
 
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;700&display=swap" rel="stylesheet">
     <link href="https://unpkg.com/boxicons@2.1.4/css/boxicons.min.css" rel="stylesheet">
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
 
     <style>
         body {
@@ -236,12 +233,26 @@
             border-color: #335d7b;
             background-color: #e0e7ff;
         }
+
+        .kos-list {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+            gap: 12px;
+            margin-top: 12px
+        }
+
+        .kos-item {
+            border: 1px solid #e6eef3;
+            padding: 12px;
+            border-radius: 10px;
+            background: #fafcff
+        }
     </style>
 </head>
 
 <body>
-
     <x-header />
+
 
     <div class="profile-container">
         <div class="profile-card">
@@ -251,25 +262,31 @@
                 Edit Profil
             </button>
 
-            <a href="{{ route('penghuni.dashboard') }}" class="back-link">
+            <a href="{{ url()->previous() }}" class="back-link">
                 &#8592; <span>Detail Akun</span>
             </a>
 
             <div class="header-content">
                 <div class="avatar">
-                    @if(isset($user->foto_profile) && $user->foto_profile) <!-- ← PERBAIKI: ganti 'profile' menjadi 'foto_profile' -->
-                    <img src="{{ asset('storage/' . $user->foto_profile) }}" alt="Profile Picture"> <!-- ← PERBAIKI -->
+                    @if(isset($user->foto_profile) && $user->foto_profile)
+                    <img src="{{ asset('storage/' . $user->foto_profile) }}" alt="Foto {{ $user->username }}">
                     @else
                     <span style="font-size: 40px;">
-                        {{ strtoupper(substr($user->username ?? 'U', 0, 1)) }}
+                        {{ strtoupper(substr($user->username ?? 'U',0,1)) }}
                     </span>
                     @endif
                 </div>
                 <div class="user-info">
                     <h2>{{ $user->nama_lengkap ?? $user->username }}</h2>
-                    <p class="status-text">Peran: {{ $user->peran ?? '-' }}</p>
-                    <div class="status-badge {{ ($user->peran == 'Penghuni' && !empty($user->nama_lengkap)) ? 'active' : '' }}">
-                        {{ ($user->peran == 'Penghuni' && !empty($user->nama_lengkap)) ? 'Aktif' : 'Tidak Aktif' }}
+                    <p class="text-sm text-gray-600">Peran: {{ $user->peran ?? 'Pemilik' }}</p>
+
+                    <!-- Badge: tunjukkan jumlah kos yang dimiliki (aktif jika > 0) -->
+                    <div style="margin-top:8px;">
+                        @php $kosCount = $kosCollection->count() ?? 0; @endphp
+                        <span class="inline-block rounded-lg font-semibold py-1.5 px-2.5  text-[13px]
+                        {{ $kosCount > 0 ? 'bg-green-500 text-white' : 'bg-gray-200 text-gray-500' }}">
+                            {{ $kosCount > 0 ? $kosCount . ' Kos Dimiliki' : 'Belum Memiliki Kos' }}
+                        </span>
                     </div>
                 </div>
             </div>

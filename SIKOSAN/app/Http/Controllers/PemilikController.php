@@ -136,6 +136,70 @@ class PemilikController extends Controller
         return view('dashboard.KontrolKos', compact('kos'));
     }
 
+    // ==================== METHOD UNTUK Profil ====================
+
+    public function profil()
+    {
+        $user = Auth::user();
+
+        // Validasi role
+        if ($user->peran !== 'Pemilik') {
+            abort(403, 'Unauthorized access');
+        }
+
+        // Eager loading untuk optimasi query
+        $kosCollection = Kos::where('user_id', $user->id)
+            ->latest()
+            ->get();
+
+        // Hitung statistik
+        $statistics = [
+            'total_kos' => $kosCollection->count(),
+        ];
+
+        return view('profile.profilpemilik', compact('user', 'kosCollection', 'statistics'));
+    }
+
+    public function update_profil(Request $request)
+    {
+        $user = Auth::users();
+
+        // Validasi role
+        if ($user->peran !== 'Pemilik') {
+            abort(403, 'Unauthorized access');
+        }
+
+        $validated = $request->validate([
+            'nama_lengkap' => 'required|string|max:255',
+            'jenis_kelamin' => 'required|in:L,P',
+            'no_telepon' => 'required|regex:/^([0-9\s\-\+\(\)]*)$/|min:10|max:15',
+            'foto_profile' => 'nullable|image|mimes:jpeg,png,jpg|max:2048',
+        ], [
+            'nama_lengkap.required' => 'Nama lengkap harus diisi',
+            'no_telepon.regex' => 'Format nomor telepon tidak valid',
+            'foto_profile.max' => 'Ukuran foto maksimal 2MB'
+        ]);
+
+        try {
+            if ($request->hasFile('foto_profile')) {
+                // Hapus foto lama jika ada
+                if ($user->foto_profile && Storage::disk('public')->exists($user->foto_profile)) {
+                    Storage::disk('public')->delete($user->foto_profile);
+                }
+
+                // Simpan foto baru
+                $path = $request->file('foto_profile')->store('profiles', 'public');
+                $validated['foto_profile'] = $path;
+            }
+
+            $user->update($validated);
+
+            return redirect()->back()->with('success', 'Profil berhasil diperbarui');
+        } catch (\Exception $e) {
+            return redirect()->back()->with('error', 'Terjadi kesalahan saat memperbarui profil');
+        }
+    }
+
     // ==================== METHOD UNTUK KAMAR ====================
 
     /**
@@ -208,17 +272,17 @@ class PemilikController extends Controller
      * Menampilkan form edit kamar
      */
     public function editKamar(Kamar $kamar)
-{
-    if ($kamar->user_id !== Auth::id()) {
-        abort(403);
+    {
+        if ($kamar->user_id !== Auth::id()) {
+            abort(403);
+        }
+
+        // MEMUAT OBJEK KOS TERKAIT
+        $kos = Kos::findOrFail($kamar->kos_id);
+
+        // MENGIRIM KEDUA VARIABEL: $kamar dan $kos
+        return view('pendaftaran.daftarkamar', compact('kamar', 'kos'));
     }
-
-    // MEMUAT OBJEK KOS TERKAIT
-    $kos = Kos::findOrFail($kamar->kos_id);
-
-    // MENGIRIM KEDUA VARIABEL: $kamar dan $kos
-    return view('pendaftaran.daftarkamar', compact('kamar', 'kos'));
-}
     /**
      * Update data kamar
      */
@@ -295,7 +359,7 @@ class PemilikController extends Controller
     public function pilihKosUntukKamar()
     {
         $kosCollection = Kos::where('user_id', Auth::id())->get();
-        
+
         if ($kosCollection->isEmpty()) {
             return redirect()->route('kos.create')
                 ->with('warning', 'Anda harus memiliki kos terlebih dahulu sebelum menambahkan kamar.');

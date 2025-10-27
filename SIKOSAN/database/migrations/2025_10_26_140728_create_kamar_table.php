@@ -21,7 +21,8 @@ return new class extends Migration
             $table->text('deskripsi')->nullable();
             $table->string('tipe_kamar')->nullable(); // standard, deluxe, premium
             $table->string('foto_kamar')->nullable();
-
+            $table->boolean('status_ketersediaan')->nullable();
+            $table->timestamps();
         });
     }
 
