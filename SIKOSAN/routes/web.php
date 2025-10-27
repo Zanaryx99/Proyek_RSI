@@ -32,7 +32,7 @@ Route::middleware(['auth'])->group(function () {
     // Route untuk dashboard utama
     Route::get('/Dpemilik', [PemilikController::class, 'indexSK'])->name('pemilik.dashboard');
     Route::get('/Dpenghuni', [penghuniController::class, 'indexPi'])->name('penghuni.dashboard');
-    
+
     // Kontrol Kos (Detail Kos)
     Route::get('/kontrolkos/{kos}', [PemilikController::class, 'kontrolKos'])->name('kos.kontrol');
 
@@ -40,7 +40,10 @@ Route::middleware(['auth'])->group(function () {
     Route::put('/profile/update', [penghuniController::class, 'update'])->name('profile.update');
     Route::get('/profil-penghuni', [penghuniController::class, 'profil'])->name('profil.penghuni');
     Route::post('/join-kos', [penghuniController::class, 'joinKos'])->name('join.kos');
-    
+
+    // Route Profil Pemilik
+    Route::get('/profil-pemilik', [PemilikController::class, 'profil'])->name('profil.pemilik');
+
     // CRUD Kos (Properti)
     Route::get('/kos/create', [PemilikController::class, 'create'])->name('kos.create');
     Route::post('/kos', [PemilikController::class, 'store'])->name('kos.store');
@@ -51,10 +54,10 @@ Route::middleware(['auth'])->group(function () {
 
     // Routes untuk Kamar - SESUAI ALUR YANG DIINGINKAN
     Route::get('/kamar/{kos}', [PemilikController::class, 'indexKamar'])->name('kamar.index');
-    
+
     // Route untuk form tambah kamar (dari kontrol kos)
     Route::get('/kamar/{kos}/create', [PemilikController::class, 'createKamarForm'])->name('kamar.create');
-    
+
     // Route untuk menyimpan kamar baru
     Route::post('/kamar/{kos}/store', [PemilikController::class, 'storeKamar'])->name('kamar.store');
 
