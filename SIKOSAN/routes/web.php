@@ -16,7 +16,6 @@ Route::middleware(['guest'])->group(function () {
 
 // Routes untuk user yang sudah login
 Route::middleware(['auth'])->group(function () {
-
     // Logout
     Route::get('/logout', function () {
         Auth::logout();
@@ -33,19 +32,35 @@ Route::middleware(['auth'])->group(function () {
     // Route untuk dashboard utama
     Route::get('/Dpemilik', [PemilikController::class, 'indexSK'])->name('pemilik.dashboard');
     Route::get('/Dpenghuni', [penghuniController::class, 'indexPi'])->name('penghuni.dashboard');
+    
+    // Kontrol Kos (Detail Kos)
     Route::get('/kontrolkos/{kos}', [PemilikController::class, 'kontrolKos'])->name('kos.kontrol');
 
-    // Tambahkan route ini di dalam group middleware auth
+    // Route Profil Penghuni & Join Kos
     Route::put('/profile/update', [penghuniController::class, 'update'])->name('profile.update');
     Route::get('/profil-penghuni', [penghuniController::class, 'profil'])->name('profil.penghuni');
     Route::post('/join-kos', [penghuniController::class, 'joinKos'])->name('join.kos');
+    
+    // CRUD Kos (Properti)
     Route::get('/kos/create', [PemilikController::class, 'create'])->name('kos.create');
     Route::post('/kos', [PemilikController::class, 'store'])->name('kos.store');
-
     Route::get('/kos', [PemilikController::class, 'indexSK'])->name('kos.show');
-
     Route::get('/kos/{kos}/edit', [PemilikController::class, 'edit'])->name('kos.edit');
     Route::put('/kos/{kos}', [PemilikController::class, 'update'])->name('kos.update');
-
     Route::delete('/kos/{kos}', [PemilikController::class, 'destroy'])->name('kos.destroy');
+
+    // Routes untuk Kamar - SESUAI ALUR YANG DIINGINKAN
+    Route::get('/kamar/{kos}', [PemilikController::class, 'indexKamar'])->name('kamar.index');
+    
+    // Route untuk form tambah kamar (dari kontrol kos)
+    Route::get('/kamar/{kos}/create', [PemilikController::class, 'createKamarForm'])->name('kamar.create');
+    
+    // Route untuk menyimpan kamar baru
+    Route::post('/kamar/{kos}/store', [PemilikController::class, 'storeKamar'])->name('kamar.store');
+
+    // Routes lainnya untuk kamar
+    Route::get('/kamar/{kamar}/show', [PemilikController::class, 'showKamar'])->name('kamar.show');
+    Route::get('/kamar/{kamar}/edit', [PemilikController::class, 'editKamar'])->name('kamar.edit');
+    Route::put('/kamar/{kamar}', [PemilikController::class, 'updateKamar'])->name('kamar.update');
+    Route::delete('/kamar/{kamar}', [PemilikController::class, 'destroyKamar'])->name('kamar.destroy');
 });
