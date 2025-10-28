@@ -1,8 +1,9 @@
 <?php
 
 use App\Http\Controllers\SessionController;
-use App\Http\Controllers\penghuniController;
+use App\Http\Controllers\PenghuniController;
 use App\Http\Controllers\PemilikController;
+use App\Http\Controllers\KamarController;
 use Illuminate\Support\Facades\Route;
 use Illuminate\Support\Facades\Auth;
 
@@ -31,15 +32,15 @@ Route::get('/', function () {
 Route::middleware(['auth'])->group(function () {
     // Route untuk dashboard utama
     Route::get('/Dpemilik', [PemilikController::class, 'indexSK'])->name('pemilik.dashboard');
-    Route::get('/Dpenghuni', [penghuniController::class, 'indexPi'])->name('penghuni.dashboard');
+    Route::get('/Dpenghuni', [PenghuniController::class, 'indexPi'])->name('penghuni.dashboard');
 
     // Kontrol Kos (Detail Kos)
     Route::get('/kontrolkos/{kos}', [PemilikController::class, 'kontrolKos'])->name('kos.kontrol');
 
     // Route Profil Penghuni & Join Kos
-    Route::put('/profile/update', [penghuniController::class, 'update'])->name('profile.update');
-    Route::get('/profil-penghuni', [penghuniController::class, 'profil'])->name('profil.penghuni');
-    Route::post('/join-kos', [penghuniController::class, 'joinKos'])->name('join.kos');
+    Route::put('/profile/update', [PenghuniController::class, 'update'])->name('profile.update');
+    Route::get('/profil-penghuni', [PenghuniController::class, 'profil'])->name('profil.penghuni');
+    Route::post('/join-kos', [PenghuniController::class, 'joinKos'])->name('join.kos');
 
     // Route Profil Pemilik
     Route::get('/profil-pemilik', [PemilikController::class, 'profil'])->name('profil.pemilik');
@@ -52,18 +53,19 @@ Route::middleware(['auth'])->group(function () {
     Route::put('/kos/{kos}', [PemilikController::class, 'update'])->name('kos.update');
     Route::delete('/kos/{kos}', [PemilikController::class, 'destroy'])->name('kos.destroy');
 
-    // Routes untuk Kamar - SESUAI ALUR YANG DIINGINKAN
+    // Routes untuk Kamar
     Route::get('/kamar/{kos}', [PemilikController::class, 'indexKamar'])->name('kamar.index');
-
-    // Route untuk form tambah kamar (dari kontrol kos)
     Route::get('/kamar/{kos}/create', [PemilikController::class, 'createKamarForm'])->name('kamar.create');
-
-    // Route untuk menyimpan kamar baru
     Route::post('/kamar/{kos}/store', [PemilikController::class, 'storeKamar'])->name('kamar.store');
-
-    // Routes lainnya untuk kamar
     Route::get('/kamar/{kamar}/show', [PemilikController::class, 'showKamar'])->name('kamar.show');
     Route::get('/kamar/{kamar}/edit', [PemilikController::class, 'editKamar'])->name('kamar.edit');
     Route::put('/kamar/{kamar}', [PemilikController::class, 'updateKamar'])->name('kamar.update');
     Route::delete('/kamar/{kamar}', [PemilikController::class, 'destroyKamar'])->name('kamar.destroy');
+    
+    // Route untuk update status kamar
+    Route::patch('/kamar/{kamar}/status', [PemilikController::class, 'updateStatusKamar'])->name('kamar.update-status');
+
+    // Routes untuk pendaftaran kamar oleh penghuni
+    Route::post('/kamar/daftar', [PenghuniController::class, 'daftarKamar'])->name('kamar.daftar');
+    Route::post('/kamar/{id}/keluar', [PenghuniController::class, 'keluarKamar'])->name('kamar.keluar');
 });
