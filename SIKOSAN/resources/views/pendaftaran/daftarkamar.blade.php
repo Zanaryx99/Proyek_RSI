@@ -47,13 +47,56 @@
             object-fit: cover;
             border-radius: .5rem;
         }
-        
+
         .form-field {
             background-color: #f9fafb;
             border: 1px solid #d1d5db;
             border-radius: 0.5rem;
             padding: 0.75rem;
             margin-bottom: 1rem;
+        }
+
+        .status-badge {
+            padding: 0.5rem 1rem;
+            border-radius: 0.5rem;
+            font-size: 0.875rem;
+            font-weight: 600;
+            text-transform: uppercase;
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+        
+        .status-tersedia {
+            background-color: #dcfce7;
+            color: #166534;
+            border: 1px solid #bbf7d0;
+        }
+        
+        .status-terisi {
+            background-color: #dbeafe;
+            color: #1e40af;
+            border: 1px solid #bfdbfe;
+        }
+        
+        .status-renovasi {
+            background-color: #fef3c7;
+            color: #92400e;
+            border: 1px solid #fde68a;
+        }
+
+        .info-card {
+            background: linear-gradient(135deg, #f0f9ff 0%, #e6f3ff 100%);
+            border: 1px solid #bae6fd;
+            border-radius: 1rem;
+            padding: 1.5rem;
+        }
+
+        .kode-unik-box {
+            background: linear-gradient(135deg, #f0fdf4 0%, #dcfce7 100%);
+            border: 1px solid #bbf7d0;
+            border-radius: 1rem;
+            padding: 1.5rem;
         }
     </style>
 </head>
@@ -129,16 +172,16 @@
                     <i class='bx bx-arrow-back text-2xl mr-2'></i>
                     <span class="font-medium">Kembali</span>
                 </a>
-                
+
                 <h2 class="text-3xl font-bold text-teal-700 text-center flex-1">
                     Detail Kamar
                 </h2>
-                
+
                 <!-- Tombol Edit di kanan atas -->
-                <button onclick="openEditModal()" 
-                    class="flex items-center bg-white text-teal-600 px-6 py-3 rounded-lg hover:bg-white transition-colors">
+                <button onclick="openEditModal()"
+                    class="flex items-center bg-teal-600 text-white px-6 py-3 rounded-lg hover:bg-teal-700 transition-colors">
                     <i class='bx bx-edit-alt mr-2'></i>
-                    {{-- Edit --}}
+                    Edit
                 </button>
             </div>
 
@@ -171,11 +214,11 @@
                     </label>
                     <div class="mt-1">
                         @if($kamar->foto_kamar)
-                            <img src="{{ asset('storage/' . $kamar->foto_kamar) }}" 
-                                 alt="Foto {{ $kamar->nama_kamar }}"
-                                 class="w-full h-64 object-cover rounded-lg border border-gray-300">
+                            <img src="{{ asset('storage/' . $kamar->foto_kamar) }}" alt="Foto {{ $kamar->nama_kamar }}"
+                                class="w-full h-64 object-cover rounded-lg border border-gray-300">
                         @else
-                            <div class="w-full h-64 bg-gray-200 rounded-lg flex items-center justify-center border border-gray-300">
+                            <div
+                                class="w-full h-64 bg-gray-200 rounded-lg flex items-center justify-center border border-gray-300">
                                 <i class='bx bx-image text-4xl text-gray-400'></i>
                             </div>
                         @endif
@@ -187,6 +230,32 @@
                     <label class="block text-sm font-medium text-gray-600 mb-1">Nama Kamar</label>
                     <div class="form-field">
                         {{ $kamar->nama_kamar }}
+                    </div>
+                </div>
+
+                <!-- Status Ketersediaan -->
+                <div>
+                    <label class="block text-sm font-medium text-gray-600 mb-1">Status Ketersediaan</label>
+                    <div class="form-field">
+                        @if($kamar->status === 'tersedia')
+                            <span class="status-badge status-tersedia">
+                                <i class='bx bx-check-circle'></i>
+                                Tersedia
+                            </span>
+                            <p class="text-sm text-gray-600 mt-2">Kamar siap untuk ditempati oleh penghuni baru.</p>
+                        @elseif($kamar->status === 'terisi')
+                            <span class="status-badge status-terisi">
+                                <i class='bx bx-user-check'></i>
+                                Terisi
+                            </span>
+                            <p class="text-sm text-gray-600 mt-2">Kamar sedang ditempati oleh penghuni.</p>
+                        @elseif($kamar->status === 'renovasi')
+                            <span class="status-badge status-renovasi">
+                                <i class='bx bx-wrench'></i>
+                                Renovasi
+                            </span>
+                            <p class="text-sm text-gray-600 mt-2">Kamar sedang dalam proses perbaikan atau renovasi.</p>
+                        @endif
                     </div>
                 </div>
 
@@ -222,6 +291,65 @@
                     </div>
                 </div>
             </div>
+
+            <!-- Kode Unik Kamar -->
+            <div class="kode-unik-box mt-8">
+                <h3 class="text-lg font-semibold text-gray-700 mb-3 flex items-center gap-2">
+                    <i class='bx bx-key text-green-500'></i>
+                    Kode Unik Kamar
+                </h3>
+                <div class="flex items-center justify-between">
+                    <div>
+                        <div class="flex items-center gap-3">
+                            <code class="text-2xl font-bold text-teal-700 bg-white px-4 py-2 rounded-lg border-2 border-teal-200">
+                                {{ $kamar->kode_unik }}
+                            </code>
+                            <button onclick="copyKodeUnik('{{ $kamar->kode_unik }}')" 
+                                    class="text-teal-600 hover:text-teal-700 transition-colors p-2 rounded-lg hover:bg-teal-50"
+                                    title="Salin kode unik">
+                                <i class='bx bx-copy text-xl'></i>
+                            </button>
+                        </div>
+                        <p class="text-sm text-gray-600 mt-2">
+                            @if($kamar->status === 'tersedia')
+                                Berikan kode ini kepada calon penghuni untuk bergabung ke kamar ini.
+                            @elseif($kamar->status === 'terisi')
+                                Kode unik sedang digunakan oleh penghuni.
+                            @else
+                                Kode unik tidak aktif saat kamar dalam renovasi.
+                            @endif
+                        </p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Informasi Tambahan -->
+            <div class="mt-8 grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div class="info-card">
+                    <h4 class="font-semibold text-gray-700 mb-2 flex items-center gap-2">
+                        <i class='bx bx-info-circle text-blue-500'></i>
+                        Informasi Status
+                    </h4>
+                    <ul class="text-sm text-gray-600 space-y-1">
+                        <li>• <span class="font-medium text-green-600">Tersedia:</span> Kamar bisa ditempati</li>
+                        <li>• <span class="font-medium text-blue-600">Terisi:</span> Kamar sudah ada penghuni</li>
+                        <li>• <span class="font-medium text-yellow-600">Renovasi:</span> Kamar sedang diperbaiki</li>
+                    </ul>
+                </div>
+
+                <div class="info-card">
+                    <h4 class="font-semibold text-gray-700 mb-2 flex items-center gap-2">
+                        <i class='bx bx-edit-alt text-teal-500'></i>
+                        Cara Mengubah Status
+                    </h4>
+                    <ul class="text-sm text-gray-600 space-y-1">
+                        <li>• Klik tombol <strong>Edit</strong> di atas</li>
+                        <li>• Ubah status di form edit</li>
+                        <li>• Simpan perubahan</li>
+                        <li>• Status "Terisi" otomatis saat penghuni bergabung</li>
+                    </ul>
+                </div>
+            </div>
         </div>
     </main>
 
@@ -230,7 +358,8 @@
         <div class="flex items-center justify-center min-h-screen px-4 pt-4 pb-20 text-center sm:block sm:p-0">
             <div class="fixed inset-0 bg-gray-900 bg-opacity-75 transition-opacity" onclick="closeEditModal()"></div>
 
-            <div class="inline-block align-bottom bg-white rounded-2xl text-left overflow-hidden shadow-xl transform transition-all sm:my-8 sm:align-middle sm:max-w-2xl sm:w-full">
+            <div
+                class="inline-block align-bottom bg-white rounded-2xl text-left overflow-hidden shadow-xl transform transition-all sm:my-8 sm:align-middle sm:max-w-2xl sm:w-full">
                 <div class="bg-white px-6 pt-6 pb-4">
                     <div class="flex items-center justify-between mb-6">
                         <h3 class="text-2xl font-bold text-teal-700">Edit Data Kamar</h3>
@@ -240,7 +369,8 @@
                     </div>
 
                     <!-- Form Edit -->
-                    <form action="{{ route('kamar.update', $kamar->id) }}" method="POST" enctype="multipart/form-data" class="space-y-6">
+                    <form action="{{ route('kamar.update', $kamar->id) }}" method="POST" enctype="multipart/form-data"
+                        class="space-y-6">
                         @csrf
                         @method('PUT')
 
@@ -253,8 +383,8 @@
                                 class="mt-1 flex flex-col items-center px-6 pt-5 pb-6 border-2 border-gray-300 border-dashed rounded-md cursor-pointer hover:border-teal-400 transition-colors">
                                 <div class="space-y-1 text-center">
                                     @if($kamar->foto_kamar)
-                                        <img id="edit_current_photo" src="{{ asset('storage/' . $kamar->foto_kamar) }}" 
-                                             alt="Foto saat ini" class="w-32 h-32 object-cover rounded-lg mx-auto mb-4">
+                                        <img id="edit_current_photo" src="{{ asset('storage/' . $kamar->foto_kamar) }}"
+                                            alt="Foto saat ini" class="w-32 h-32 object-cover rounded-lg mx-auto mb-4">
                                     @else
                                         <svg class="mx-auto h-12 w-12 text-gray-400" stroke="currentColor" fill="none"
                                             viewBox="0 0 48 48" aria-hidden="true">
@@ -275,11 +405,12 @@
                                     <p class="text-xs text-gray-500">PNG, JPG, GIF up to 2MB</p>
                                 </div>
 
-                                <input id="edit_foto_kamar" name="foto_kamar" type="file" accept="image/*" class="hidden">
-                                
+                                <input id="edit_foto_kamar" name="foto_kamar" type="file" accept="image/*"
+                                    class="hidden">
+
                                 <div id="edit_preview_area" class="mt-4 w-full hidden">
-                                    <img id="edit_img_preview" class="img-preview mx-auto border border-gray-300" src="#"
-                                        alt="Preview foto baru" />
+                                    <img id="edit_img_preview" class="img-preview mx-auto border border-gray-300"
+                                        src="#" alt="Preview foto baru" />
                                     <p id="edit_file_name" class="text-center text-sm text-gray-600 mt-2"></p>
                                     <button type="button" id="edit_btn_remove_preview"
                                         class="mx-auto mt-2 block text-red-600 hover:text-red-700 text-sm font-medium">
@@ -291,43 +422,65 @@
 
                         <!-- Nama Kamar -->
                         <div>
-                            <label for="edit_nama_kamar" class="block text-sm font-medium text-gray-600 mb-1">Nama Kamar *</label>
+                            <label for="edit_nama_kamar" class="block text-sm font-medium text-gray-600 mb-1">Nama Kamar
+                                *</label>
                             <input type="text" name="nama_kamar" id="edit_nama_kamar"
                                 class="w-full border border-gray-300 rounded-md shadow-sm focus:border-teal-500 focus:ring-teal-500 px-4 py-2"
-                                value="{{ $kamar->nama_kamar }}"
-                                placeholder="Contoh: Kamar A1, Kamar Deluxe 101" required>
+                                value="{{ $kamar->nama_kamar }}" placeholder="Contoh: Kamar A1, Kamar Deluxe 101"
+                                required>
+                        </div>
+
+                        <!-- Status Kamar - HANYA tersedia dan renovasi -->
+                        <div>
+                            <label for="edit_status" class="block text-sm font-medium text-gray-600 mb-1">Status Ketersediaan *</label>
+                            <select name="status" id="edit_status" required
+                                class="w-full border border-gray-300 rounded-md shadow-sm focus:border-teal-500 focus:ring-teal-500 px-4 py-2">
+                                <option value="tersedia" {{ $kamar->status == 'tersedia' ? 'selected' : '' }}>Tersedia</option>
+                                <option value="renovasi" {{ $kamar->status == 'renovasi' ? 'selected' : '' }}>Renovasi</option>
+                            </select>
+                            <p class="text-xs text-gray-500 mt-1">
+                                Status "Terisi" akan otomatis aktif ketika penghuni menggunakan kode unik
+                            </p>
                         </div>
 
                         <!-- Tipe Kamar -->
                         <div>
-                            <label for="edit_tipe_kamar" class="block text-sm font-medium text-gray-600 mb-1">Tipe Kamar</label>
+                            <label for="edit_tipe_kamar" class="block text-sm font-medium text-gray-600 mb-1">Tipe
+                                Kamar</label>
                             <select name="tipe_kamar" id="edit_tipe_kamar"
                                 class="w-full border border-gray-300 rounded-md shadow-sm focus:border-teal-500 focus:ring-teal-500 px-4 py-2">
                                 <option value="">-- Pilih Tipe Kamar --</option>
-                                <option value="Standard" {{ $kamar->tipe_kamar == 'Standard' ? 'selected' : '' }}>Standard</option>
-                                <option value="Deluxe" {{ $kamar->tipe_kamar == 'Deluxe' ? 'selected' : '' }}>Deluxe</option>
-                                <option value="Premium" {{ $kamar->tipe_kamar == 'Premium' ? 'selected' : '' }}>Premium</option>
-                                <option value="Eksekutif" {{ $kamar->tipe_kamar == 'Eksekutif' ? 'selected' : '' }}>Eksekutif</option>
+                                <option value="Standard" {{ $kamar->tipe_kamar == 'Standard' ? 'selected' : '' }}>Standard
+                                </option>
+                                <option value="Deluxe" {{ $kamar->tipe_kamar == 'Deluxe' ? 'selected' : '' }}>Deluxe
+                                </option>
+                                <option value="Premium" {{ $kamar->tipe_kamar == 'Premium' ? 'selected' : '' }}>Premium
+                                </option>
+                                <option value="Eksekutif" {{ $kamar->tipe_kamar == 'Eksekutif' ? 'selected' : '' }}>
+                                    Eksekutif</option>
                             </select>
                         </div>
 
                         <!-- Harga Sewa -->
                         <div>
-                            <label for="edit_harga_sewa" class="block text-sm font-medium text-gray-600 mb-1">Harga Sewa per Bulan *</label>
+                            <label for="edit_harga_sewa" class="block text-sm font-medium text-gray-600 mb-1">Harga Sewa
+                                per Bulan *</label>
                             <div class="relative">
                                 <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
                                     <span class="text-gray-500">Rp</span>
                                 </div>
                                 <input type="text" name="harga_sewa" id="edit_harga_sewa"
                                     class="w-full pl-10 border border-gray-300 rounded-md shadow-sm focus:border-teal-500 focus:ring-teal-500 px-4 py-2"
-                                    value="{{ number_format($kamar->harga_sewa, 0, ',', '.') }}"
-                                    placeholder="0" oninput="formatCurrency(this)" required>
+                                    value="{{ number_format($kamar->harga_sewa, 0, ',', '.') }}" placeholder="0"
+                                    oninput="formatCurrency(this)" required>
                             </div>
                         </div>
 
                         <!-- Minimal Waktu Sewa -->
                         <div>
-                            <label for="edit_minimal_waktu_sewa" class="block text-sm font-medium text-gray-600 mb-1">Minimal Waktu Sewa (bulan) *</label>
+                            <label for="edit_minimal_waktu_sewa"
+                                class="block text-sm font-medium text-gray-600 mb-1">Minimal Waktu Sewa (bulan)
+                                *</label>
                             <input type="number" name="minimal_waktu_sewa" id="edit_minimal_waktu_sewa" min="1" max="24"
                                 class="w-full border border-gray-300 rounded-md shadow-sm focus:border-teal-500 focus:ring-teal-500 px-4 py-2"
                                 value="{{ $kamar->minimal_waktu_sewa }}" required>
@@ -335,7 +488,8 @@
 
                         <!-- Deskripsi -->
                         <div>
-                            <label for="edit_deskripsi" class="block text-sm font-medium text-gray-600 mb-1">Deskripsi Kamar</label>
+                            <label for="edit_deskripsi" class="block text-sm font-medium text-gray-600 mb-1">Deskripsi
+                                Kamar</label>
                             <textarea name="deskripsi" id="edit_deskripsi" rows="4"
                                 class="w-full border border-gray-300 rounded-md shadow-sm focus:border-teal-500 focus:ring-teal-500 px-4 py-2"
                                 placeholder="Deskripsikan fasilitas dan keunggulan kamar ini...">{{ $kamar->deskripsi }}</textarea>
@@ -368,6 +522,49 @@
                 value = parseInt(value, 10).toLocaleString('id-ID');
                 input.value = value;
             }
+        }
+
+        // Fungsi untuk menyalin kode unik
+        function copyKodeUnik(kode) {
+            navigator.clipboard.writeText(kode).then(() => {
+                // Tampilkan notifikasi sukses
+                showNotification('Kode unik berhasil disalin!', 'success');
+            }).catch(err => {
+                console.error('Gagal menyalin kode: ', err);
+                showNotification('Gagal menyalin kode', 'error');
+            });
+        }
+
+        // Fungsi untuk menampilkan notifikasi
+        function showNotification(message, type = 'success') {
+            // Buat elemen notifikasi
+            const notification = document.createElement('div');
+            notification.className = `fixed top-4 right-4 z-50 px-6 py-3 rounded-lg shadow-lg transition-all duration-300 transform translate-x-full ${
+                type === 'success' ? 'bg-green-500 text-white' : 'bg-red-500 text-white'
+            }`;
+            notification.innerHTML = `
+                <div class="flex items-center gap-2">
+                    <i class='bx ${type === 'success' ? 'bx-check-circle' : 'bx-error'} text-xl'></i>
+                    <span>${message}</span>
+                </div>
+            `;
+            
+            document.body.appendChild(notification);
+            
+            // Animasi masuk
+            setTimeout(() => {
+                notification.classList.remove('translate-x-full');
+                notification.classList.add('translate-x-0');
+            }, 100);
+            
+            // Animasi keluar setelah 3 detik
+            setTimeout(() => {
+                notification.classList.remove('translate-x-0');
+                notification.classList.add('translate-x-full');
+                setTimeout(() => {
+                    document.body.removeChild(notification);
+                }, 300);
+            }, 3000);
         }
 
         // Modal functions
@@ -474,12 +671,12 @@
             if (editBtnRemovePreview) {
                 editBtnRemovePreview.addEventListener('click', (e) => {
                     e.stopPropagation();
-                    
-                    editFileInput.value = ''; 
+
+                    editFileInput.value = '';
                     editPreviewArea.classList.add('hidden');
                     editImgPreview.src = '#';
                     editFileNameEl.textContent = '';
-                    
+
                     // Tampilkan kembali foto lama
                     if (editCurrentPhoto) {
                         editCurrentPhoto.classList.remove('hidden');
@@ -509,7 +706,7 @@
             });
 
             // Close modal with Escape key
-            document.addEventListener('keydown', function(e) {
+            document.addEventListener('keydown', function (e) {
                 if (e.key === 'Escape') {
                     closeEditModal();
                 }
@@ -517,4 +714,5 @@
         });
     </script>
 </body>
+
 </html>

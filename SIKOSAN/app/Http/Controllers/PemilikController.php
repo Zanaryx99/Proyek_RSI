@@ -162,7 +162,7 @@ class PemilikController extends Controller
 
     public function update_profil(Request $request)
     {
-        $user = Auth::users();
+        $user = Auth::user(); // Perbaiki: Auth::users() -> Auth::user()
 
         // Validasi role
         if ($user->peran !== 'Pemilik') {
@@ -212,7 +212,7 @@ class PemilikController extends Controller
         }
 
         $kamar = Kamar::where('kos_id', $kos->id)
-            ->with('kos')
+            ->with(['kos', 'user']) // Include relasi user
             ->latest()
             ->get();
 
@@ -247,6 +247,7 @@ class PemilikController extends Controller
             'deskripsi' => 'nullable|string',
             'tipe_kamar' => 'nullable|string|max:255',
             'foto_kamar' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:2048',
+            'status' => 'nullable|in:tersedia,terisi,renovasi', // Tambah validasi status
         ]);
 
         // Format harga sewa (hapus titik pemisah ribuan)
@@ -258,13 +259,14 @@ class PemilikController extends Controller
             $validated['foto_kamar'] = $path;
         }
 
-        // Tambahkan user_id dan kos_id
-        $validated['user_id'] = Auth::id();
+        // Tambahkan data tambahan
         $validated['kos_id'] = $kos->id;
+        $validated['status'] = $validated['status'] ?? 'tersedia'; // Default status
+        // user_id tetap null karena kamar baru belum ada penghuni
+        // kode_unik akan otomatis digenerate oleh model
 
         Kamar::create($validated);
 
-        // Redirect kembali ke daftar kamar kos tersebut
         return redirect()->route('kamar.index', $kos->id)->with('success', 'Kamar berhasil ditambahkan!');
     }
 
@@ -273,22 +275,24 @@ class PemilikController extends Controller
      */
     public function editKamar(Kamar $kamar)
     {
-        if ($kamar->user_id !== Auth::id()) {
+        // Perbaiki authorization
+        if ($kamar->kos->user_id !== Auth::id()) {
             abort(403);
         }
 
-        // MEMUAT OBJEK KOS TERKAIT
-        $kos = Kos::findOrFail($kamar->kos_id);
+        // Tidak perlu query kos lagi, karena sudah ada relasi
+        $kos = $kamar->kos;
 
-        // MENGIRIM KEDUA VARIABEL: $kamar dan $kos
         return view('pendaftaran.daftarkamar', compact('kamar', 'kos'));
     }
+
     /**
      * Update data kamar
      */
     public function updateKamar(Request $request, Kamar $kamar)
     {
-        if ($kamar->user_id !== Auth::id()) {
+        // Perbaiki authorization
+        if ($kamar->kos->user_id !== Auth::id()) {
             abort(403);
         }
 
@@ -299,6 +303,7 @@ class PemilikController extends Controller
             'deskripsi' => 'nullable|string',
             'tipe_kamar' => 'nullable|string|max:255',
             'foto_kamar' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:2048',
+            'status' => 'required|in:tersedia,terisi,renovasi', // Wajib untuk update
         ]);
 
         // Format harga sewa (hapus titik pemisah ribuan)
@@ -315,6 +320,11 @@ class PemilikController extends Controller
             $validated['foto_kamar'] = $path;
         }
 
+        // Jika status diubah menjadi 'tersedia', set user_id menjadi null
+        if ($validated['status'] === 'tersedia') {
+            $validated['user_id'] = null;
+        }
+
         $kamar->update($validated);
 
         return redirect()->route('kamar.index', $kamar->kos_id)->with('success', 'Kamar berhasil diperbarui!');
@@ -325,7 +335,8 @@ class PemilikController extends Controller
      */
     public function destroyKamar(Kamar $kamar)
     {
-        if ($kamar->user_id !== Auth::id()) {
+        // Perbaiki authorization
+        if ($kamar->kos->user_id !== Auth::id()) {
             abort(403);
         }
 
@@ -342,11 +353,36 @@ class PemilikController extends Controller
     }
 
     /**
+     * Update status kamar saja
+     */
+    public function updateStatusKamar(Request $request, Kamar $kamar)
+    {
+        if ($kamar->kos->user_id !== Auth::id()) {
+            abort(403);
+        }
+
+        $request->validate([
+            'status' => 'required|in:tersedia,terisi,renovasi',
+        ]);
+
+        $updateData = ['status' => $request->status];
+
+        // Jika status diubah menjadi 'tersedia', set user_id menjadi null
+        if ($request->status === 'tersedia') {
+            $updateData['user_id'] = null;
+        }
+
+        $kamar->update($updateData);
+
+        return back()->with('success', 'Status kamar berhasil diubah!');
+    }
+
+    /**
      * Menampilkan detail kamar
      */
     public function showKamar(Kamar $kamar)
     {
-        if ($kamar->user_id !== Auth::id()) {
+        if ($kamar->kos->user_id !== Auth::id()) {
             abort(403);
         }
 

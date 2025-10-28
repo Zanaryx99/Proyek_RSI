@@ -43,6 +43,29 @@
             object-fit: cover;
             border-radius: .5rem;
         }
+
+        .status-badge {
+            padding: 0.25rem 0.75rem;
+            border-radius: 9999px;
+            font-size: 0.75rem;
+            font-weight: 600;
+            text-transform: uppercase;
+        }
+        
+        .status-tersedia {
+            background-color: #10b981;
+            color: white;
+        }
+        
+        .status-terisi {
+            background-color: #3b82f6;
+            color: white;
+        }
+        
+        .status-renovasi {
+            background-color: #f59e0b;
+            color: white;
+        }
     </style>
 </head>
 
@@ -150,11 +173,45 @@
                         <div class="absolute top-3 right-3 bg-teal-500 text-white px-2 py-1 rounded-full text-xs font-semibold">
                             {{ $kamarItem->tipe_kamar ?? 'Standard' }}
                         </div>
+                        <!-- Badge Status Ketersediaan -->
+                        <div class="absolute top-3 left-3">
+                            @if($kamarItem->status === 'tersedia')
+                                <span class="status-badge status-tersedia">Tersedia</span>
+                            @elseif($kamarItem->status === 'terisi')
+                                <span class="status-badge status-terisi">Terisi</span>
+                            @elseif($kamarItem->status === 'renovasi')
+                                <span class="status-badge status-renovasi">Renovasi</span>
+                            @endif
+                        </div>
                     </div>
                     <div class="p-6">
                         <h3 class="text-xl font-bold text-gray-800 truncate">{{ $kamarItem->nama_kamar }}</h3>
                         <p class="text-teal-600 font-semibold text-lg mt-2">Rp {{ number_format($kamarItem->harga_sewa, 0, ',', '.') }}/bulan</p>
                         <p class="text-gray-500 text-sm mt-1">Minimal sewa: {{ $kamarItem->minimal_waktu_sewa }} bulan</p>
+
+                        <!-- Kode Unik untuk Penghuni -->
+                        <div class="mt-3 p-3 bg-gray-50 rounded-lg">
+                            <p class="text-sm font-medium text-gray-700">Kode Unik Kamar:</p>
+                            <div class="flex items-center justify-between mt-1">
+                                <code class="text-lg font-bold text-teal-700 bg-white px-2 py-1 rounded border">
+                                    {{ $kamarItem->kode_unik }}
+                                </code>
+                                <button onclick="copyKodeUnik('{{ $kamarItem->kode_unik }}')" 
+                                        class="text-teal-600 hover:text-teal-700 transition-colors"
+                                        title="Salin kode">
+                                    <i class='bx bx-copy text-xl'></i>
+                                </button>
+                            </div>
+                            <p class="text-xs text-gray-500 mt-1">
+                                @if($kamarItem->status === 'tersedia')
+                                    Berikan kode ini kepada penghuni untuk bergabung
+                                @elseif($kamarItem->status === 'terisi')
+                                    Kamar sedang ditempati oleh penghuni
+                                @else
+                                    Kamar sedang tidak tersedia
+                                @endif
+                            </p>
+                        </div>
 
                         @if($kamarItem->kos)
                         <p class="text-gray-600 text-sm mt-1">Kos: {{ $kamarItem->kos->nama_kos }}</p>
@@ -162,6 +219,37 @@
 
                         @if($kamarItem->deskripsi)
                         <p class="text-gray-600 text-sm mt-3 line-clamp-2">Deskripsi: {{ Str::limit($kamarItem->deskripsi, 80) }}</p>
+                        @endif
+
+                        <!-- Form Update Status - HANYA untuk status tersedia dan renovasi -->
+                        @if($kamarItem->status !== 'terisi')
+                        <div class="mt-4">
+                            <label for="status_{{ $kamarItem->id }}" class="block text-sm font-medium text-gray-700 mb-1">Ubah Status:</label>
+                            <form action="{{ route('kamar.update-status', $kamarItem->id) }}" method="POST" class="flex gap-2">
+                                @csrf
+                                @method('PATCH')
+                                <select name="status" id="status_{{ $kamarItem->id }}" 
+                                        class="flex-1 border border-gray-300 rounded-md px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-teal-500">
+                                    <option value="tersedia" {{ $kamarItem->status === 'tersedia' ? 'selected' : '' }}>Tersedia</option>
+                                    <option value="renovasi" {{ $kamarItem->status === 'renovasi' ? 'selected' : '' }}>Renovasi</option>
+                                </select>
+                                <button type="submit" 
+                                        class="bg-teal-600 text-white px-3 py-2 rounded-md text-sm hover:bg-teal-700 transition-colors">
+                                    <i class='bx bx-check'></i>
+                                </button>
+                            </form>
+                            <p class="text-xs text-gray-500 mt-1">
+                                Status "Terisi" akan otomatis aktif ketika penghuni menggunakan kode unik
+                            </p>
+                        </div>
+                        @else
+                        <div class="mt-4 p-3 bg-blue-50 rounded-lg">
+                            <p class="text-sm text-blue-700">
+                                <i class='bx bx-info-circle'></i> 
+                                Status "Terisi" aktif karena kamar sedang ditempati penghuni. 
+                                Status akan otomatis kembali ke "Tersedia" ketika penghuni keluar.
+                            </p>
+                        </div>
                         @endif
 
                         <div class="mt-6 space-y-2">
@@ -377,6 +465,19 @@
                                 value="{{ old('minimal_waktu_sewa', 1) }}" required>
                         </div>
 
+                        <!-- Status Kamar - HANYA tersedia dan renovasi -->
+                        <div>
+                            <label for="status" class="block text-sm font-medium text-gray-600 mb-1">Status Kamar *</label>
+                            <select name="status" id="status" required
+                                class="w-full border border-gray-300 rounded-md shadow-sm focus:border-teal-500 focus:ring-teal-500 px-4 py-2">
+                                <option value="tersedia" {{ old('status') == 'tersedia' ? 'selected' : '' }}>Tersedia</option>
+                                <option value="renovasi" {{ old('status') == 'renovasi' ? 'selected' : '' }}>Renovasi</option>
+                            </select>
+                            <p class="text-xs text-gray-500 mt-1">
+                                Status "Terisi" akan otomatis aktif ketika penghuni menggunakan kode unik
+                            </p>
+                        </div>
+
                         <!-- Deskripsi -->
                         <div>
                             <label for="deskripsi" class="block text-sm font-medium text-gray-600 mb-1">Deskripsi Kamar</label>
@@ -440,6 +541,49 @@
                 value = parseInt(value, 10).toLocaleString('id-ID');
                 input.value = value;
             }
+        }
+
+        // Fungsi untuk menyalin kode unik
+        function copyKodeUnik(kode) {
+            navigator.clipboard.writeText(kode).then(() => {
+                // Tampilkan notifikasi sukses
+                showNotification('Kode unik berhasil disalin!', 'success');
+            }).catch(err => {
+                console.error('Gagal menyalin kode: ', err);
+                showNotification('Gagal menyalin kode', 'error');
+            });
+        }
+
+        // Fungsi untuk menampilkan notifikasi
+        function showNotification(message, type = 'success') {
+            // Buat elemen notifikasi
+            const notification = document.createElement('div');
+            notification.className = `fixed top-4 right-4 z-50 px-6 py-3 rounded-lg shadow-lg transition-all duration-300 transform translate-x-full ${
+                type === 'success' ? 'bg-green-500 text-white' : 'bg-red-500 text-white'
+            }`;
+            notification.innerHTML = `
+                <div class="flex items-center gap-2">
+                    <i class='bx ${type === 'success' ? 'bx-check-circle' : 'bx-error'} text-xl'></i>
+                    <span>${message}</span>
+                </div>
+            `;
+            
+            document.body.appendChild(notification);
+            
+            // Animasi masuk
+            setTimeout(() => {
+                notification.classList.remove('translate-x-full');
+                notification.classList.add('translate-x-0');
+            }, 100);
+            
+            // Animasi keluar setelah 3 detik
+            setTimeout(() => {
+                notification.classList.remove('translate-x-0');
+                notification.classList.add('translate-x-full');
+                setTimeout(() => {
+                    document.body.removeChild(notification);
+                }, 300);
+            }, 3000);
         }
 
         // Modal functions
