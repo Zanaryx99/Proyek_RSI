@@ -129,11 +129,36 @@ class PemilikController extends Controller
      */
     public function kontrolKos(Kos $kos)
     {
+        // Verifikasi Keamanan
         if ($kos->user_id !== Auth::id()) {
             abort(403);
         }
 
-        return view('dashboard.KontrolKos', compact('kos'));
+        // Ambil semua data terkait dengan efisien
+        $semuaKamar = Kamar::where('kos_id', $kos->id)->with('user')->get();
+
+        // 1. Filter kamar yang dihuni (ini adalah data yang kita butuhkan)
+        $kamarDihuni = $semuaKamar->where('status', 'terisi')->whereNotNull('user_id');
+
+        // 2. Hitung total pemasukan langsung dari kamar yang dihuni
+        $totalPemasukan = $kamarDihuni->sum('harga_sewa');
+
+        // Kalkulasi lain untuk ringkasan (jika masih diperlukan)
+        $avgHarga = $semuaKamar->isNotEmpty() ? round($semuaKamar->avg('harga_sewa')) : null;
+        $minMinimal = $semuaKamar->isNotEmpty() ? $semuaKamar->min('minimal_waktu_sewa') : null;
+        $jumlahPenghuni = $kamarDihuni->count();
+        $rating = $kos->rating ?? null;
+
+        // Kirim data yang benar ke View
+        return view('dashboard.KontrolKos', compact(
+            'kos',
+            'kamarDihuni',      // <-- Variabel utama untuk tabel rincian
+            'totalPemasukan',   // <-- Variabel untuk total di footer
+            'avgHarga',
+            'minMinimal',
+            'jumlahPenghuni',
+            'rating'
+        ));
     }
 
     // ==================== METHOD UNTUK Profil ====================
