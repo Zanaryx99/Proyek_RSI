@@ -29,8 +29,8 @@
             </a>
             <div class="bg-white p-4 rounded-xl shadow-md">
                 <div class="relative">
-                    <img src="https://images.unsplash.com/photo-1585098944543-9b57827238fb?q=80&w=2070"
-                        alt="Foto Kost Holly" class="w-full h-60 object-cover rounded-lg">
+                    <img src="{{ $kos->foto ? asset('storage/' . $kos->foto) : 'https://images.unsplash.com/photo-1585098944543-9b57827238fb?q=80&w=2070' }}"
+                        alt="Foto Kost" class="w-full h-60 object-cover rounded-lg">
                     <button
                         class="absolute left-2 top-1/2 -translate-y-1/2 bg-white/70 rounded-full p-2 hover:bg-white"><i
                             class='bx bx-chevron-left text-2xl'></i></button>
@@ -38,37 +38,44 @@
                         class="absolute right-2 top-1/2 -translate-y-1/2 bg-white/70 rounded-full p-2 hover:bg-white"><i
                             class='bx bx-chevron-right text-2xl'></i></button>
                 </div>
-                <h2 class="text-2xl font-bold text-gray-800 mt-4">Kost Holly</h2>
-                <p class="text-sm text-gray-500">Jenis Kos: Putri</p>
+                <h2 class="text-2xl font-bold text-gray-800 mt-4">{{ $kos->nama_kos ?? 'Nama Kost' }}</h2>
+                <p class="text-sm text-gray-500">Jenis Kos: {{ $kos->jenis ?? '-' }}</p>
             </div>
 
             <div class="bg-white p-6 rounded-xl shadow-md space-y-4">
                 <div>
                     <h3 class="font-bold text-gray-800">Lokasi</h3>
-                    <p class="text-gray-600 text-sm">Jalan Soekarno Perumahan Soekarno No. 2, Lowokwaru, Kota Malang,
-                        Jawa Timur</p>
+                    <p class="text-gray-600 text-sm">{{ $kos->lokasi ?? 'Lokasi belum diisi.' }}</p>
                 </div>
 
                 <div>
                     <h3 class="font-bold text-gray-800 mb-2">Fasilitas Umum</h3>
                     <ul class="text-gray-600 text-sm space-y-1">
-                        <li class="flex items-center"><i class='bx bx-check-circle custom-icon mr-2'></i>Kamar mandi
-                            luar plus kloset luar</li>
+                        @if(!empty($kos->fasilitas_umum))
+                        @foreach(preg_split("/\r\n|\n|\r/", $kos->fasilitas_umum) as $f)
+                        @if(trim($f) !== '')
+                        <li class="flex items-center"><i class='bx bx-check-circle custom-icon mr-2'></i>{{ $f }}</li>
+                        @endif
+                        @endforeach
+                        @else
+                        <li class="text-gray-500">Belum ada fasilitas umum yang didaftarkan.</li>
+                        @endif
                     </ul>
                 </div>
 
                 <div>
-                    <h3 class="font-bold text-gray-800 mb-2">Fasilitas Kamar (Tipe A)</h3>
-                    <ul class="text-gray-600 text-sm space-y-1">
-                        <li class="flex items-center"><i class='bx bx-check-circle custom-icon mr-2'></i>Kasur</li>
-                        <li class="flex items-center"><i class='bx bx-check-circle custom-icon mr-2'></i>Meja dan Kursi
-                        </li>
+                    <h3 class="font-bold text-gray-800 mb-2">Peraturan Umum Kos</h3>
+                    <ul class="text-gray-600 text-sm space-y-1 list-disc list-inside">
+                        @if(!empty($kos->peraturan_umum))
+                        @foreach(preg_split("/\r\n|\n|\r/", $kos->peraturan_umum) as $peraturan)
+                        @if(trim($peraturan) !== '')
+                        <li>{{ $peraturan }}</li>
+                        @endif
+                        @endforeach
+                        @else
+                        <li class="list-none text-gray-500">Belum ada peraturan umum yang didaftarkan.</li>
+                        @endif
                     </ul>
-                </div>
-
-                <div class="border-t pt-4 space-y-2">
-                    <p class="text-sm text-gray-600"><strong>Harga Sewa:</strong> Rp 9.600.000 / Tahun</p>
-                    <p class="text-sm text-gray-600"><strong>Minimal Waktu Sewa:</strong> 6 Bulan</p>
                 </div>
 
                 <a href="{{ route('kamar.index', $kos->id) }}"
@@ -78,61 +85,71 @@
             </div>
 
             <div class="bg-white p-6 rounded-xl shadow-md">
-                <h3 class="font-bold text-gray-800">Kode Unik</h3>
-                <div class="text-sm text-gray-500 bg-gray-100 p-2 rounded-md mt-2">
-                    <p>Tipe A: k05HollyA_GHYM...</p>
-                    <p>Tipe B: k05HollyB_GHYM...</p>
-                </div>
-                <div class="mt-4 border-t pt-4">
-                    <h3 class="font-bold text-gray-800">Rating</h3>
-                    <div class="flex items-center mt-1">
+                <h3 class="font-bold text-gray-800">Rating</h3>
+                <div class="flex items-center mt-1">
+                    @php
+                    $displayRating = $rating ? round($rating * 2) / 2 : null; // pembulatan 0.5
+                    $fullStars = $displayRating ? floor($displayRating) : 0;
+                    $halfStar = $displayRating && ($displayRating - $fullStars) >= 0.5;
+                    @endphp
+
+                    @for($i=0; $i < $fullStars; $i++)
                         <i class='bx bxs-star text-yellow-500'></i>
-                        <i class='bx bxs-star text-yellow-500'></i>
-                        <i class='bx bxs-star text-yellow-500'></i>
-                        <i class='bx bxs-star text-yellow-500'></i>
+                        @endfor
+                        @if($halfStar)
                         <i class='bx bxs-star-half text-yellow-500'></i>
-                        <span class="ml-2 text-sm font-semibold text-gray-700">4.5/5</span>
-                    </div>
+                        @endif
+                        @for($i = $fullStars + ($halfStar ? 1 : 0); $i < 5; $i++)
+                            <i class='bx bxs-star text-gray-300'></i>
+                            @endfor
+
+                            <span class="ml-2 text-sm font-semibold text-gray-700">
+                                {{ $displayRating ? $displayRating . '/5' : 'Belum ada penilaian' }}
+                            </span>
                 </div>
-                <button
-                    class="w-full mt-4 py-2 px-4 bg-blue-600 text-white font-semibold rounded-lg hover:bg-blue-700 transition-colors">
-                    Buat Pengumuman
-                </button>
             </div>
+            <button
+                class="w-full mt-4 py-2 px-4 bg-blue-600 text-white font-semibold rounded-lg hover:bg-blue-700 transition-colors">
+                Buat Pengumuman
+            </button>
+        </div>
 
         </div>
 
         <div class="lg:col-span-2 mt-20 space-y-6">
 
             <div class="bg-white p-6 rounded-xl shadow-md">
-                <h2 class="text-xl font-bold text-gray-800 mb-4">Penghasilan Bulan Lalu</h2>
+                <h2 class="text-xl font-bold text-gray-800 mb-4">Rincian Pemasukan Bulan Ini</h2>
                 <table class="w-full text-sm text-left text-gray-600">
                     <thead class="text-xs text-gray-700 uppercase bg-gray-50">
                         <tr>
-                            <th scope="col" class="px-4 py-3">Jenis Kamar</th>
-                            <th scope="col" class="px-4 py-3">Total Penghuni</th>
+                            <th scope="col" class="px-4 py-3">Nama Kamar</th>
+                            <th scope="col" class="px-4 py-3">Tipe Kamar</th>
                             <th scope="col" class="px-4 py-3">Harga Sewa</th>
-                            <th scope="col" class="px-4 py-3">Total Penghasilan</th>
                         </tr>
                     </thead>
                     <tbody>
+                        {{-- Lakukan perulangan untuk SETIAP kamar yang dihuni --}}
+                        @forelse ($kamarDihuni as $kamar)
                         <tr class="border-b">
-                            <td class="px-4 py-3">Tipe A</td>
-                            <td class="px-4 py-3">5</td>
-                            <td class="px-4 py-3">Rp 800.000</td>
-                            <td class="px-4 py-3">Rp 4.000.000</td>
+                            <td class="px-4 py-3 font-medium">{{ $kamar->nama_kamar }}</td>
+                            <td class="px-4 py-3">{{ $kamar->tipe_kamar ?: 'Tidak ada tipe' }}</td>
+                            <td class="px-4 py-3">Rp {{ number_format($kamar->harga_sewa, 0, ',', '.') }}</td>
                         </tr>
+                        @empty
+                        {{-- Tampil jika tidak ada kamar yang dihuni --}}
                         <tr class="border-b">
-                            <td class="px-4 py-3">Tipe B</td>
-                            <td class="px-4 py-3">10</td>
-                            <td class="px-4 py-3">Rp 800.000</td>
-                            <td class="px-4 py-3">Rp 8.000.000</td>
+                            <td colspan="3" class="px-4 py-3 text-center text-gray-500">
+                                Tidak ada pemasukan bulan ini.
+                            </td>
                         </tr>
+                        @endforelse
                     </tbody>
                     <tfoot class="font-semibold text-gray-800">
                         <tr>
-                            <td colspan="3" class="px-4 py-3 text-right">Total Pendapatan</td>
-                            <td class="px-4 py-3">Rp 12.000.000</td>
+                            <td colspan="2" class="px-4 py-3 text-right">Total Pemasukan</td>
+                            {{-- Gunakan variabel total pemasukan yang sudah dihitung --}}
+                            <td class="px-4 py-3">Rp {{ number_format($totalPemasukan, 0, ',', '.') }}</td>
                         </tr>
                     </tfoot>
                 </table>
@@ -144,45 +161,39 @@
 
             <div class="bg-white p-6 rounded-xl shadow-md">
                 <h2 class="text-xl font-bold text-gray-800 mb-4">Penghuni Kos</h2>
-                <div>
-                    <h3 class="font-semibold text-gray-700 mt-4 mb-2">Tipe A</h3>
-                    <div class="space-y-3">
-                        <div class="flex items-center justify-between p-3 bg-slate-50 rounded-lg">
-                            <div class="flex items-center">
-                                <img class="w-10 h-10 rounded-full mr-3" src="https://i.pravatar.cc/40?u=a"
-                                    alt="Avatar">
-                                <div>
-                                    <p class="font-medium text-gray-900">Asep Slamet</p>
-                                    <p class="text-xs text-green-600 font-semibold">Sudah Bayar</p>
-                                </div>
-                            </div>
-                            <div class="flex items-center space-x-2">
-                                <button class="p-2 rounded-full hover:bg-gray-200"><i
-                                        class='bx bx-message-square-dots text-xl text-gray-600'></i></button>
-                                <button class="p-2 rounded-full hover:bg-gray-200"><i
-                                        class='bx bx-search-alt-2 text-xl text-gray-600'></i></button>
+
+                <div class="space-y-3">
+                    {{-- Gunakan @forelse untuk looping data kamarDihuni --}}
+                    @forelse ($kamarDihuni as $kamar)
+                    <div class="flex items-center justify-between p-3 bg-slate-50 rounded-lg">
+                        <div class="flex items-center">
+                            {{-- Tampilkan foto profil default atau dari user jika ada --}}
+                            <img class="w-10 h-10 rounded-full mr-3"
+                                src="{{asset('storage/' . $kamar->user->foto_profile) ?? 'https://i.pravatar.cc/40?u=' . $kamar->user_id }}"
+                                alt="Avatar">
+                            <div>
+                                {{-- Tampilkan nama penghuni melalui relasi user --}}
+                                <p class="font-medium text-gray-900">{{ $kamar->user->nama_lengkap ?? 'Data Penghuni Error' }}</p>
+                                {{-- Tampilkan nama/nomor kamar --}}
+                                <p class="text-xs text-gray-500">Menempati: {{ $kamar->nama_kamar ?? 'N/A' }}</p>
                             </div>
                         </div>
-                        <div class="flex items-center justify-between p-3 bg-slate-50 rounded-lg">
-                            <div class="flex items-center">
-                                <img class="w-10 h-10 rounded-full mr-3" src="https://i.pravatar.cc/40?u=b"
-                                    alt="Avatar">
-                                <div>
-                                    <p class="font-medium text-gray-900">Dadang Koren</p>
-                                    <p class="text-xs text-red-600 font-semibold">Belum Bayar</p>
-                                </div>
-                            </div>
-                            <div class="flex items-center space-x-2">
-                                <button class="p-2 rounded-full hover:bg-gray-200"><i
-                                        class='bx bx-message-square-dots text-xl text-gray-600'></i></button>
-                                <button class="p-2 rounded-full hover:bg-gray-200"><i
-                                        class='bx bx-search-alt-2 text-xl text-gray-600'></i></button>
-                            </div>
+                        <div class="flex items-center space-x-2">
+                            {{-- Tombol aksi bisa ditambahkan di sini --}}
+                            <button class="p-2 rounded-full hover:bg-gray-200" title="Kirim Pesan">
+                                <i class='bx bx-message-square-dots text-xl text-gray-600'></i>
+                            </button>
+                            <button class="p-2 rounded-full hover:bg-gray-200" title="Lihat Detail">
+                                <i class='bx bx-search-alt-2 text-xl text-gray-600'></i>
+                            </button>
                         </div>
                     </div>
-                </div>
-                <div class="mt-6">
-                    <h3 class="font-semibold text-gray-700 mt-4 mb-2">Tipe B</h3>
+                    @empty
+                    {{-- Bagian ini akan tampil jika tidak ada penghuni sama sekali --}}
+                    <div class="text-center py-4 text-gray-500">
+                        <p>Belum ada penghuni saat ini.</p>
+                    </div>
+                    @endforelse
                 </div>
             </div>
         </div>

@@ -55,4 +55,10 @@ class User extends Authenticatable
     {
         return $this->hasMany(Kos::class, 'user_id');
     }
+
+    // In app/Models/User.php
+    public function kamar()
+    {
+        return $this->hasOne(Kamar::class, 'user_id');
+    }
 }
