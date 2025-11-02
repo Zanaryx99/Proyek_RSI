@@ -24,6 +24,8 @@ return new class extends Migration {
             // Ganti boolean dengan enum status
             $table->enum('status', ['tersedia', 'terisi', 'renovasi'])->default('tersedia');
             $table->timestamps();
+            $table->text('review')->nullable();
+            $table->float('rating')->nullable();
         });
     }
 

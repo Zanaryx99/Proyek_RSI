@@ -4,6 +4,7 @@
 <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width,initial-scale=1">
+    <meta name="csrf-token" content="{{ csrf_token() }}">
     <title>Dashboard Penghuni</title>
 
     <script src="https://cdn.tailwindcss.com"></script>
@@ -81,6 +82,31 @@
 
         .btn-danger:hover {
             background: #b91c1c;
+        }
+
+        /* Star Rating Styles */
+        .star-rating {
+            display: flex;
+            flex-direction: row-reverse;
+            justify-content: flex-end;
+            gap: 0.5rem;
+        }
+
+        .star-rating input {
+            display: none;
+        }
+
+        .star-rating label {
+            color: #ddd;
+            cursor: pointer;
+            font-size: 2rem;
+            transition: color 0.2s ease-in-out;
+        }
+
+        .star-rating input:checked ~ label,
+        .star-rating label:hover,
+        .star-rating label:hover ~ label {
+            color: #ffc107;
         }
     </style>
 
@@ -208,7 +234,7 @@
                             Chat Pemilik
                         </button>
 
-                        <button class="action-button btn-secondary">
+                        <button class="action-button btn-secondary" onclick="openReviewModal()">
                             <i class='bx bx-star'></i>
                             Ulas Kos
                         </button>
@@ -238,6 +264,25 @@
                         <p class="text-gray-600">{{ $kos->peraturan_umum }}</p>
                     </div>
                     @endif
+
+                    <!-- Review Section -->
+                    <div class="mt-6 pt-6 border-t border-gray-200">
+                        <div class="flex items-center justify-between">
+                            <h3 class="font-semibold text-gray-800 mb-3">Review Anda</h3>
+                            <button onclick="openReviewModal('edit')" class="text-teal-600 hover:text-teal-700">
+                                <i class='bx bx-edit-alt text-xl'></i>
+                            </button>
+                        </div>
+                        <div class="flex items-center gap-2 mb-3">
+                            <div class="flex">
+                                @for($i = 1; $i <= 5; $i++)
+                                    <i class='bx bxs-star text-xl {{ $i <= ($kamarDitempati->rating ?? 0) ? "text-yellow-400" : "text-gray-300" }}'></i>
+                                @endfor
+                            </div>
+                            <span class="text-sm text-gray-600">({{ $kamarDitempati->rating ?? 0 }}/5)</span>
+                        </div>
+                        <p class="text-gray-600">{{ $kamarDitempati->review ?? 'Belum ada review' }}</p>
+                    </div>
                 </div>
             </div>
             @endforeach
@@ -326,6 +371,59 @@
         </div>
     </div>
 
+    <!-- Modal Review Kos -->
+    <div id="reviewModal" class="hidden fixed inset-0 z-50 overflow-y-auto">
+        <div class="flex items-center justify-center min-h-screen px-4 pt-4 pb-20 text-center sm:block sm:p-0">
+            <div class="fixed inset-0 bg-gray-900 bg-opacity-75 transition-opacity" onclick="closeReviewModal()"></div>
+
+            <div class="inline-block align-bottom bg-white rounded-2xl text-left overflow-hidden shadow-xl transform transition-all sm:my-8 sm:align-middle sm:max-w-lg sm:w-full">
+                <div class="bg-white px-4 pt-5 pb-4 sm:p-6 sm:pb-4">
+                    <div class="sm:flex sm:items-start">
+                        <div class="mx-auto flex-shrink-0 flex items-center justify-center h-12 w-12 rounded-full bg-yellow-100 sm:mx-0">
+                            <i class='bx bx-star text-2xl text-yellow-600'></i>
+                        </div>
+                        <div class="mt-3 text-center sm:mt-0 sm:ml-4 sm:text-left w-full">
+                            <h3 class="text-xl leading-6 font-bold text-gray-900" id="reviewModalTitle">
+                                Ulas Kos
+                            </h3>
+                            <form id="reviewForm" class="mt-4">
+                                @csrf
+                                <input type="hidden" name="action" id="reviewAction" value="create">
+                                <div class="mb-6 px-4">
+                                    <label class="block text-sm font-semibold text-gray-700 mb-2">Rating</label>
+                                    <div class="star-rating">
+                                        <input type="radio" id="star5" name="rating" value="5" />
+                                        <label for="star5" class="bx bxs-star"></label>
+                                        <input type="radio" id="star4" name="rating" value="4" />
+                                        <label for="star4" class="bx bxs-star"></label>
+                                        <input type="radio" id="star3" name="rating" value="3" />
+                                        <label for="star3" class="bx bxs-star"></label>
+                                        <input type="radio" id="star2" name="rating" value="2" />
+                                        <label for="star2" class="bx bxs-star"></label>
+                                        <input type="radio" id="star1" name="rating" value="1" />
+                                        <label for="star1" class="bx bxs-star"></label>
+                                    </div>
+                                </div>
+                                <div class="mb-4 px-4">
+                                    <label for="review" class="block text-sm font-semibold text-gray-700 mb-2">Review</label>
+                                    <textarea id="review" name="review" rows="4" class="shadow-sm focus:ring-teal-500 focus:border-teal-500 mt-1 block w-full sm:text-sm border border-gray-300 rounded-lg px-3 py-2" placeholder="Bagikan pengalaman Anda tentang kos ini..."></textarea>
+                                </div>
+                                <div class="flex justify-end gap-3 px-4">
+                                    <button type="button" onclick="closeReviewModal()" class="inline-flex justify-center rounded-lg border border-gray-300 shadow-sm px-4 py-2 bg-white text-base font-medium text-gray-700 hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-teal-500 transition-colors sm:text-sm">
+                                        Batal
+                                    </button>
+                                    <button type="submit" class="inline-flex justify-center rounded-lg border border-transparent shadow-sm px-4 py-2 bg-teal-600 text-base font-medium text-white hover:bg-teal-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-teal-500 transition-colors sm:text-sm">
+                                        <span id="submitButtonText">Upload Review</span>
+                                    </button>
+                                </div>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
     <script>
         // FUNGSI UNTUK MENGELOLA DROPDOWN
         function setupDropdownToggle(buttonId, menuId) {
@@ -402,11 +500,102 @@
             if (e.key === 'Escape') {
                 closeAboutModal();
                 closeLogoutModal();
+                closeReviewModal();
                 // Tutup semua dropdown saat Esc
                 document.getElementById('profile-menu').classList.add('hidden');
                 document.getElementById('contact-dropdown').classList.add('hidden');
             }
         });
+
+        // Fungsi untuk membuka modal Review
+        function openReviewModal(mode = 'create') {
+            const modal = document.getElementById('reviewModal');
+            const form = document.getElementById('reviewForm');
+            const title = document.getElementById('reviewModalTitle');
+            const submitText = document.getElementById('submitButtonText');
+            const actionInput = document.getElementById('reviewAction');
+
+            // Reset form
+            if (form) form.reset();
+
+            if (mode === 'edit') {
+                title.textContent = 'Edit Review';
+                submitText.textContent = 'Simpan Perubahan';
+                actionInput.value = 'edit';
+
+                // Mengisi form dengan data review yang ada
+                const currentRating = parseInt('{{ $kamarDitempati->rating ?? 0 }}', 10) || 0;
+                const currentReview = `{!! addslashes($kamarDitempati->review ?? '') !!}`;
+
+                if (currentRating > 0) {
+                    const starInput = document.querySelector(`input[name="rating"][value="${currentRating}"]`);
+                    if (starInput) starInput.checked = true;
+                }
+                const reviewEl = document.getElementById('review');
+                if (reviewEl) reviewEl.value = currentReview;
+            } else {
+                title.textContent = 'Ulas Kos';
+                submitText.textContent = 'Kirim Review';
+                actionInput.value = 'create';
+            }
+
+            modal.classList.remove('hidden');
+            document.body.style.overflow = 'hidden';
+        }
+
+        // Fungsi untuk menutup modal Review
+        function closeReviewModal() {
+            const modal = document.getElementById('reviewModal');
+            modal.classList.add('hidden');
+            document.body.style.overflow = 'auto';
+        }
+
+        // Menangani submit form review
+        (function() {
+            const reviewForm = document.getElementById('reviewForm');
+            if (!reviewForm) return;
+
+            reviewForm.addEventListener('submit', async function(e) {
+                e.preventDefault();
+
+                const csrfToken = document.querySelector('meta[name="csrf-token"]').getAttribute('content');
+                const formData = new FormData(this);
+                const action = formData.get('action') || 'create';
+                const rating = formData.get('rating');
+                const reviewText = formData.get('review');
+
+                const url = '/review';
+                const method = action === 'edit' ? 'PUT' : 'POST';
+
+                try {
+                    const res = await fetch(url, {
+                        method: method,
+                        headers: {
+                            'Content-Type': 'application/json',
+                            'X-CSRF-TOKEN': csrfToken,
+                            'Accept': 'application/json'
+                        },
+                        body: JSON.stringify({ rating: rating, review: reviewText })
+                    });
+
+                    if (res.ok) {
+                        // simplest: reload to update the review area
+                        location.reload();
+                    } else if (res.status === 422) {
+                        const json = await res.json();
+                        alert((json.message || 'Validasi error') + '\n' + JSON.stringify(json.errors || {}));
+                    } else {
+                        const json = await res.json().catch(()=>null);
+                        alert((json && (json.message || json.error)) || 'Gagal menyimpan review');
+                    }
+                } catch (err) {
+                    console.error(err);
+                    alert('Terjadi kesalahan saat mengirim review');
+                }
+
+                closeReviewModal();
+            });
+        })();
     </script>
 </body>
 

@@ -4,6 +4,7 @@ use App\Http\Controllers\SessionController;
 use App\Http\Controllers\PenghuniController;
 use App\Http\Controllers\PemilikController;
 use App\Http\Controllers\KamarController;
+use App\Http\Controllers\ReviewController;
 use Illuminate\Support\Facades\Route;
 use Illuminate\Support\Facades\Auth;
 
@@ -68,4 +69,12 @@ Route::middleware(['auth'])->group(function () {
     // Routes untuk pendaftaran kamar oleh penghuni
     Route::post('/kamar/daftar', [PenghuniController::class, 'daftarKamar'])->name('kamar.daftar');
     Route::post('/kamar/{id}/keluar', [PenghuniController::class, 'keluarKamar'])->name('kamar.keluar');
+
+    // Routes untuk review
+    Route::middleware(['auth'])->group(function () {
+        Route::post('/review', [ReviewController::class, 'store'])->name('review.store');
+        Route::put('/review', [ReviewController::class, 'update'])->name('review.update');
+        Route::get('/kos/{kosId}/reviews', [ReviewController::class, 'getKosReviews'])->name('review.getKosReviews');
+        Route::delete('/review', [ReviewController::class, 'destroy'])->name('review.destroy');
+});
 });

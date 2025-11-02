@@ -88,24 +88,91 @@
                 <h3 class="font-bold text-gray-800">Rating</h3>
                 <div class="flex items-center mt-1">
                     @php
-                    $displayRating = $rating ? round($rating * 2) / 2 : null; // pembulatan 0.5
+                    // Prioritaskan avgRating (dihitung dari review kamar). Jika tidak ada, fallback ke $rating dari model kos.
+                    $displayRating = isset($avgRating) && $avgRating ? $avgRating : ($rating ? round($rating * 2) / 2 : null);
                     $fullStars = $displayRating ? floor($displayRating) : 0;
                     $halfStar = $displayRating && ($displayRating - $fullStars) >= 0.5;
+                    $reviewsCount = isset($reviews) ? count($reviews) : 0;
                     @endphp
 
-                    @for($i=0; $i < $fullStars; $i++)
-                        <i class='bx bxs-star text-yellow-500'></i>
+                    <button id="openRatingsModalBtn" class="flex items-center p-0 m-0 text-left hover:underline focus:outline-none">
+                        @for($i=0; $i < $fullStars; $i++)
+                            <i class='bx bxs-star text-yellow-500'></i>
                         @endfor
                         @if($halfStar)
-                        <i class='bx bxs-star-half text-yellow-500'></i>
+                            <i class='bx bxs-star-half text-yellow-500'></i>
                         @endif
                         @for($i = $fullStars + ($halfStar ? 1 : 0); $i < 5; $i++)
                             <i class='bx bxs-star text-gray-300'></i>
-                            @endfor
+                        @endfor
 
-                            <span class="ml-2 text-sm font-semibold text-gray-700">
-                                {{ $displayRating ? $displayRating . '/5' : 'Belum ada penilaian' }}
-                            </span>
+                        <span class="ml-2 text-sm font-semibold text-gray-700">
+                            {{ $displayRating ? $displayRating . '/5' : 'Belum ada penilaian' }}
+                            @if($reviewsCount > 0)
+                                <span class="text-xs text-gray-500">({{ $reviewsCount }} review)</span>
+                            @endif
+                        </span>
+                    </button>
+                </div>
+            </div>
+
+            <!-- Ratings Modal (pemilik melihat ringkasan + daftar review) -->
+            <div id="ratingsModal" class="hidden fixed inset-0 z-50 overflow-y-auto">
+                <div class="flex items-center justify-center min-h-screen px-4 pt-4 pb-20 text-center sm:block sm:p-0">
+                    <div class="fixed inset-0 bg-gray-900 bg-opacity-75 transition-opacity" onclick="closeRatingsModal()"></div>
+
+                    <div class="inline-block align-bottom bg-white rounded-2xl text-left overflow-hidden shadow-xl transform transition-all sm:my-8 sm:align-middle sm:max-w-2xl sm:w-full">
+                        <div class="bg-white px-6 pt-5 pb-4 sm:p-6 sm:pb-4">
+                            <div class="sm:flex sm:items-start">
+                                <div class="mx-auto flex-shrink-0 flex items-center justify-center h-12 w-12 rounded-full bg-yellow-100 sm:mx-0">
+                                    <i class='bx bxs-star text-2xl text-yellow-500'></i>
+                                </div>
+                                <div class="mt-3 text-center sm:mt-0 sm:ml-4 sm:text-left w-full">
+                                    <h3 class="text-xl leading-6 font-bold text-gray-900">Rating & Review untuk {{ $kos->nama_kos }}</h3>
+                                    <p class="text-sm text-gray-600 mt-2">Ringkasan perhitungan dan semua review yang dikirim oleh penghuni.</p>
+
+                                    <div class="mt-4 p-4 bg-gray-50 rounded-lg">
+                                        <div class="flex items-center justify-between">
+                                            <div>
+                                                <p class="text-2xl font-bold text-gray-800">{{ $displayRating ? $displayRating . '/5' : 'Belum ada penilaian' }}</p>
+                                                <p class="text-sm text-gray-500">Berdasarkan {{ $reviewsCount }} review</p>
+                                            </div>
+                                            <div class="text-sm text-gray-600">
+                                                {{-- Jika perlu tambahkan breakdown distribusi rating di sini --}}
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                    {{-- Daftar review individual --}}
+                                    <div class="mt-4 max-h-72 overflow-y-auto space-y-3">
+                                        @forelse($reviews ?? collect() as $r)
+                                            <div class="p-3 bg-white border rounded-lg">
+                                                <div class="flex items-start gap-3">
+                                                    <img class="w-10 h-10 rounded-full" src="{{ isset($r['user']) && $r['user'] && $r['user']->foto_profile ? asset('storage/' . $r['user']->foto_profile) : 'https://i.pravatar.cc/40?u=' . ($r['user_id'] ?? 'guest') }}" alt="avatar">
+                                                    <div class="flex-1">
+                                                        <div class="flex items-center justify-between">
+                                                            <div>
+                                                                <p class="font-medium text-gray-900">{{ isset($r['user']) && $r['user'] ? $r['user']->nama_lengkap : 'Penghuni' }}</p>
+                                                                <p class="text-xs text-gray-500">Kamar: {{ $r['nama_kamar'] }}</p>
+                                                            </div>
+                                                            <div class="text-sm text-yellow-500 font-semibold">{{ $r['rating'] }}/5</div>
+                                                        </div>
+                                                        <p class="text-gray-700 mt-2">{{ $r['review'] ?? '-' }}</p>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        @empty
+                                            <div class="text-center text-gray-500">Belum ada review dari penghuni.</div>
+                                        @endforelse
+                                    </div>
+
+                                </div>
+                            </div>
+                        </div>
+                        <div class="bg-gray-50 px-4 py-3 sm:px-6 sm:flex sm:flex-row-reverse">
+                            <button type="button" onclick="closeRatingsModal()" class="w-full inline-flex justify-center rounded-lg border border-transparent shadow-sm px-6 py-2.5 bg-teal-600 text-base font-semibold text-white hover:bg-teal-700 focus:outline-none sm:w-auto sm:text-sm">Tutup</button>
+                        </div>
+                    </div>
                 </div>
             </div>
             <button
@@ -157,6 +224,39 @@
 
             <div class="bg-white p-6 rounded-xl shadow-md">
                 <h2 class="text-xl font-bold text-gray-800 mb-4">Tagihan Bulan Lalu</h2>
+                <table class="w-full text-sm text-left text-gray-600">
+                    <thead class="text-xs text-gray-700 uppercase bg-gray-50">
+                        <tr>
+                            <th scope="col" class="px-4 py-3">Jenis Tagihan</th>
+                            <th scope="col" class="px-4 py-3">Status Pembayaran</th>
+                            <th scope="col" class="px-4 py-3">Pengeluaran</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {{-- Lakukan perulangan untuk SETIAP kamar yang dihuni --}}
+                        @forelse ($kamarDihuni as $kamar)
+                        <tr class="border-b">
+                            <td class="px-4 py-3 font-medium">{{ $kamar->nama_kamar }}</td>
+                            <td class="px-4 py-3">{{ $kamar->tipe_kamar ?: 'Tidak ada tipe' }}</td>
+                            <td class="px-4 py-3">Rp {{ number_format($kamar->harga_sewa, 0, ',', '.') }}</td>
+                        </tr>
+                        @empty
+                        {{-- Tampil jika tidak ada kamar yang dihuni --}}
+                        <tr class="border-b">
+                            <td colspan="3" class="px-4 py-3 text-center text-gray-500">
+                                Tidak ada pemasukan bulan ini.
+                            </td>
+                        </tr>
+                        @endforelse
+                    </tbody>
+                    <tfoot class="font-semibold text-gray-800">
+                        <tr>
+                            <td colspan="2" class="px-4 py-3 text-right">Total Pemasukan</td>
+                            {{-- Gunakan variabel total pemasukan yang sudah dihitung --}}
+                            <td class="px-4 py-3">Rp {{ number_format($totalPemasukan, 0, ',', '.') }}</td>
+                        </tr>
+                    </tfoot>
+                </table>
             </div>
 
             <div class="bg-white p-6 rounded-xl shadow-md">
@@ -183,7 +283,17 @@
                             <button class="p-2 rounded-full hover:bg-gray-200" title="Kirim Pesan">
                                 <i class='bx bx-message-square-dots text-xl text-gray-600'></i>
                             </button>
-                            <button class="p-2 rounded-full hover:bg-gray-200" title="Lihat Detail">
+                            <button
+                                class="p-2 rounded-full hover:bg-gray-200 profile-view-btn"
+                                title="Lihat Profil"
+                                onclick="openProfileModal(this)"
+                                data-name="{{ $kamar->user->nama_lengkap ?? 'Penghuni' }}"
+                                data-phone="{{ $kamar->user->no_telepon ?? '-' }}"
+                                data-email="{{ $kamar->user->email ?? '-' }}"
+                                data-foto="{{ $kamar->user && $kamar->user->foto_profile ? asset('storage/' . $kamar->user->foto_profile) : 'https://i.pravatar.cc/100?u=' . ($kamar->user_id ?? 'guest') }}"
+                                data-kamar="{{ $kamar->nama_kamar ?? '' }}"
+                                data-gender="{{ $kamar->user->jenis_kelamin ?? '-' }}"
+                            >
                                 <i class='bx bx-search-alt-2 text-xl text-gray-600'></i>
                             </button>
                         </div>
@@ -272,6 +382,31 @@
             </div>
         </div>
     </div>
+
+    <!-- Profile Modal (untuk melihat profil penghuni) -->
+    <div id="profileModal" class="hidden fixed inset-0 z-50 overflow-y-auto">
+        <div class="flex items-center justify-center min-h-screen px-4 pt-4 pb-20 text-center sm:block sm:p-0">
+            <div class="fixed inset-0 bg-gray-900 bg-opacity-75 transition-opacity" onclick="closeProfileModal()"></div>
+
+            <div class="inline-block align-bottom bg-white rounded-2xl text-left overflow-hidden shadow-xl transform transition-all sm:my-8 sm:align-middle sm:max-w-md sm:w-full">
+                <div class="bg-white px-6 pt-5 pb-4 sm:p-6 sm:pb-4">
+                    <div class="sm:flex sm:items-start">
+                        <img id="profileModalFoto" class="w-20 h-20 rounded-full mr-4" src="https://i.pravatar.cc/100" alt="avatar">
+                        <div class="mt-3 text-left w-full">
+                            <h3 class="text-xl leading-6 font-bold text-gray-900" id="profileModalName">Nama Penghuni</h3>
+                            <p class="text-sm text-gray-600 mt-1"><strong>Kamar      :</strong> <span id="profileModalKamar">-</span></p>
+                            <p class="text-sm text-gray-600 mt-1"><strong>Gender     :</strong> <span id="profileModalGender">-</span></p>
+                            <p class="text-sm text-gray-600 mt-1"><strong>Email :</strong> <span id="profileModalEmail">-</span></p>
+                            <p class="text-sm text-gray-600 mt-1"><strong>Telepon :</strong> <span id="profileModalPhone">-</span></p>
+                        </div>
+                    </div>
+                </div>
+                <div class="bg-gray-50 px-4 py-3 sm:px-6 sm:flex sm:flex-row-reverse">
+                    <button type="button" onclick="closeProfileModal()" class="w-full inline-flex justify-center rounded-lg border border-transparent shadow-sm px-6 py-2.5 bg-teal-600 text-base font-semibold text-white hover:bg-teal-700 focus:outline-none sm:w-auto sm:text-sm">Tutup</button>
+                </div>
+            </div>
+        </div>
+    </div>
 </body>
 <script>
     // FUNGSI UMUM UNTUK MENGELOLA TOGGLE DROPDOWN
@@ -342,16 +477,111 @@
         document.body.style.overflow = 'auto';
     }
 
+    // Ratings modal (pemilik melihat ringkasan & daftar review)
+    function openRatingsModal() {
+        const modal = document.getElementById('ratingsModal');
+        if (!modal) return;
+        modal.classList.remove('hidden');
+        document.body.style.overflow = 'hidden';
+
+        // tutup dropdown lain
+        const profile = document.getElementById('profile-menu');
+        const contact = document.getElementById('contact-dropdown');
+        if (profile) profile.classList.add('hidden');
+        if (contact) contact.classList.add('hidden');
+    }
+
+    function closeRatingsModal() {
+        const modal = document.getElementById('ratingsModal');
+        if (!modal) return;
+        modal.classList.add('hidden');
+        document.body.style.overflow = 'auto';
+    }
+
     document.addEventListener('keydown', function(e) {
         if (e.key === 'Escape') {
             closeAboutModal();
             closeLogoutModal();
             closeDeleteModal();
+            closeRatingsModal();
             // Tutup semua dropdown saat Esc
             document.getElementById('profile-menu').classList.add('hidden');
             document.getElementById('contact-dropdown').classList.add('hidden');
         }
     });
+
+    // Pasang listener on-click untuk tombol buka rating jika ada
+    document.addEventListener('DOMContentLoaded', function() {
+        const ratingsBtn = document.getElementById('openRatingsModalBtn');
+        if (ratingsBtn) {
+            ratingsBtn.addEventListener('click', function(e) {
+                e.preventDefault();
+                openRatingsModal();
+            });
+        }
+    });
+
+    // ---------------- Profile Modal for penghuni ----------------
+    function openProfileModal(btnOrEl) {
+        if (!btnOrEl) return;
+        // If called with event or element
+        const el = btnOrEl instanceof Element ? btnOrEl : (btnOrEl.target || btnOrEl.srcElement);
+        const name = el.dataset.name || 'Penghuni';
+        const phone = el.dataset.phone || '-';
+        const email = el.dataset.email || '-';
+        const foto = el.dataset.foto || 'https://i.pravatar.cc/100';
+        const kamar = el.dataset.kamar || '-';
+    const gender = (el.dataset.gender || '-');
+
+        const modal = document.getElementById('profileModal');
+        if (!modal) return;
+
+        // Fill modal fields
+        const img = modal.querySelector('#profileModalFoto');
+        const nm = modal.querySelector('#profileModalName');
+        const ph = modal.querySelector('#profileModalPhone');
+        const em = modal.querySelector('#profileModalEmail');
+        const km = modal.querySelector('#profileModalKamar');
+        const gd = modal.querySelector('#profileModalGender');
+
+        if (img) img.src = foto;
+        if (nm) nm.textContent = name;
+        if (ph) ph.textContent = phone;
+        if (em) em.textContent = email;
+        if (km) km.textContent = kamar;
+        // Translate stored gender code to human readable label
+        if (gd) {
+            let genderLabel = '-';
+            // Accept both uppercase and lowercase, and allow full words to pass through
+            const g = String(gender).trim();
+            if (g === 'L' || g === 'l') {
+                genderLabel = 'Laki-laki';
+            } else if (g === 'P' || g === 'p') {
+                genderLabel = 'Perempuan';
+            } else if (g.toLowerCase() === 'laki-laki' || g.toLowerCase() === 'laki lelaki' || g.toLowerCase() === 'laki') {
+                genderLabel = 'Laki-laki';
+            } else if (g.toLowerCase() === 'perempuan' || g.toLowerCase() === 'p') {
+                genderLabel = 'Perempuan';
+            } else if (g === '-' || g === '') {
+                genderLabel = '-';
+            } else {
+                // fallback: use raw value
+                genderLabel = g;
+            }
+
+            gd.textContent = genderLabel;
+        }
+
+        modal.classList.remove('hidden');
+        document.body.style.overflow = 'hidden';
+    }
+
+    function closeProfileModal() {
+        const modal = document.getElementById('profileModal');
+        if (!modal) return;
+        modal.classList.add('hidden');
+        document.body.style.overflow = 'auto';
+    }
 </script>
 
 </html>

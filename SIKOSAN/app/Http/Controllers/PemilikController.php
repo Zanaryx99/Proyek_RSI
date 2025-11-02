@@ -149,6 +149,22 @@ class PemilikController extends Controller
         $jumlahPenghuni = $kamarDihuni->count();
         $rating = $kos->rating ?? null;
 
+        // Kumpulkan daftar review dari kamar yang memiliki rating (asumsi rating & review disimpan di model Kamar)
+        $reviews = $kamarDihuni->filter(function ($k) {
+            return !is_null($k->rating) && trim((string)($k->rating)) !== '';
+        })->map(function ($k) {
+            return [
+                'user' => $k->user, // relasi user (bisa null kalau data tak konsisten)
+                'nama_kamar' => $k->nama_kamar,
+                'rating' => $k->rating,
+                'review' => $k->review,
+                'user_id' => $k->user_id,
+            ];
+        })->values();
+
+        // Hitung rata-rata rating berdasarkan review yang ada (bulatkan ke 0.5 terdekat untuk tampilan)
+        $avgRating = $reviews->isNotEmpty() ? round($reviews->avg('rating') * 2) / 2 : null;
+
         // Kirim data yang benar ke View
         return view('dashboard.KontrolKos', compact(
             'kos',
@@ -157,7 +173,9 @@ class PemilikController extends Controller
             'avgHarga',
             'minMinimal',
             'jumlahPenghuni',
-            'rating'
+            'rating',
+            'reviews',
+            'avgRating'
         ));
     }
 
