@@ -22,7 +22,9 @@ class Kamar extends Model
         'deskripsi',
         'tipe_kamar',
         'foto_kamar',
-        'status'
+        'status',
+        'review',
+        'rating'
     ];
 
     protected $attributes = [
