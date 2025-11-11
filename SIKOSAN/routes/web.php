@@ -5,8 +5,11 @@ use App\Http\Controllers\PenghuniController;
 use App\Http\Controllers\PemilikController;
 use App\Http\Controllers\KamarController;
 use App\Http\Controllers\ReviewController;
+use App\Http\Controllers\PembayaranController;
+use App\Livewire\Chat;
 use Illuminate\Support\Facades\Route;
 use Illuminate\Support\Facades\Auth;
+use App\Models\User;
 
 // Routes untuk guest (belum login)
 Route::middleware(['guest'])->group(function () {
@@ -77,4 +80,11 @@ Route::middleware(['auth'])->group(function () {
         Route::get('/kos/{kosId}/reviews', [ReviewController::class, 'getKosReviews'])->name('review.getKosReviews');
         Route::delete('/review', [ReviewController::class, 'destroy'])->name('review.destroy');
 });
+
+    Route::post('/pembayaran', [PembayaranController::class, 'store'])->name('pembayaran.store');
+    Route::get('/pembayaran', [PembayaranController::class, 'index'])->name('pembayaran.index');
+  
+    Route::get('/chat/{user}',Chat::class) ->name('chat');
+    
 });
+

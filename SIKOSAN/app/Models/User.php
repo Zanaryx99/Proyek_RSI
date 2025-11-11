@@ -61,4 +61,11 @@ class User extends Authenticatable
     {
         return $this->hasOne(Kamar::class, 'user_id');
     }
+
+    public function sentMessages()
+    {
+        return $this->hasMany(Message::class, 'user_id');
+    }
+
+
 }
