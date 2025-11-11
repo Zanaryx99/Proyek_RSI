@@ -24,7 +24,7 @@ class Kamar extends Model
         'foto_kamar',
         'status',
         'review',
-        'rating'
+        'rating',
     ];
 
     protected $attributes = [
@@ -133,7 +133,7 @@ class Kamar extends Model
     {
         $badges = [
             'tersedia' => 'bg-green-500 text-white',
-            'terisi' => 'bg-blue-500 text-white', 
+            'terisi' => 'bg-blue-500 text-white',
             'renovasi' => 'bg-yellow-500 text-white'
         ];
 
