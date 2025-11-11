@@ -14,6 +14,7 @@ class ReviewController extends Controller
      */
     public function store(Request $request)
     {
+
         // Validasi input
         $request->validate([
             'rating' => 'required|integer|min:1|max:5',
@@ -23,8 +24,8 @@ class ReviewController extends Controller
         try {
             // Dapatkan kamar yang ditempati oleh penghuni yang sedang login
             $kamar = Kamar::where('user_id', Auth::id())
-                        ->where('status', 'Terisi')
-                        ->first();
+                ->where('status', 'terisi')
+                ->first();
 
             if (!$kamar) {
                 return redirect()->back()
@@ -41,12 +42,10 @@ class ReviewController extends Controller
             $kamar->update([
                 'rating' => $request->rating,
                 'review' => $request->review,
-                'reviewed_at' => Carbon::now(),
             ]);
 
             return redirect()->back()
                 ->with('success', 'Review berhasil ditambahkan!');
-
         } catch (\Exception $e) {
             return redirect()->back()
                 ->with('error', 'Terjadi kesalahan saat menambahkan review.');
@@ -67,8 +66,8 @@ class ReviewController extends Controller
         try {
             // Dapatkan kamar yang ditempati oleh penghuni yang sedang login
             $kamar = Kamar::where('user_id', Auth::id())
-                        ->where('status', 'Terisi')
-                        ->first();
+                ->where('status', 'Terisi')
+                ->first();
 
             if (!$kamar) {
                 return redirect()->back()
@@ -85,16 +84,16 @@ class ReviewController extends Controller
             $kamar->update([
                 'rating' => $request->rating,
                 'review' => $request->review,
-                'reviewed_at' => Carbon::now(),
             ]);
 
             return redirect()->back()
                 ->with('success', 'Review berhasil diperbarui!');
-
         } catch (\Exception $e) {
             return redirect()->back()
                 ->with('error', 'Terjadi kesalahan saat memperbarui review.');
         }
+
+        dd($request->all());
     }
 
     /**
@@ -105,20 +104,19 @@ class ReviewController extends Controller
         try {
             // Ambil semua kamar di kos tersebut yang memiliki review
             $reviews = Kamar::where('kos_id', $kosId)
-                        ->whereNotNull('review')
-                          ->with(['user:id,nama_lengkap,foto_profile']) // Ambil data user yang memberi review
-                          ->orderBy('reviewed_at', 'desc') // Urutkan dari yang terbaru
-                        ->get();
+                ->whereNotNull('review')
+                ->with(['user:id,nama_lengkap,foto_profile']) // Ambil data user yang memberi review
+                ->orderBy('reviewed_at', 'desc') // Urutkan dari yang terbaru
+                ->get();
 
             // Hitung rata-rata rating
             $averageRating = $reviews->avg('rating');
-            
+
             return response()->json([
                 'reviews' => $reviews,
                 'averageRating' => round($averageRating, 1), // Bulatkan ke 1 desimal
                 'totalReviews' => $reviews->count()
             ]);
-
         } catch (\Exception $e) {
             return response()->json([
                 'error' => 'Terjadi kesalahan saat mengambil data review.'
@@ -134,8 +132,8 @@ class ReviewController extends Controller
         try {
             // Dapatkan kamar yang ditempati oleh penghuni yang sedang login
             $kamar = Kamar::where('user_id', Auth::id())
-                        ->where('status', 'Terisi')
-                        ->first();
+                ->where('status', 'Terisi')
+                ->first();
 
             if (!$kamar) {
                 return redirect()->back()
@@ -146,12 +144,10 @@ class ReviewController extends Controller
             $kamar->update([
                 'rating' => null,
                 'review' => null,
-                'reviewed_at' => null
             ]);
 
             return redirect()->back()
                 ->with('success', 'Review berhasil dihapus!');
-
         } catch (\Exception $e) {
             return redirect()->back()
                 ->with('error', 'Terjadi kesalahan saat menghapus review.');

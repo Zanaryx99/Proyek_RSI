@@ -29,12 +29,12 @@ class penghuniController extends Controller
 
         if ($kamarDitempati && $kamarDitempati->kos) {
             $kos = $kamarDitempati->kos;
-            
+
             // 1. Ambil data User Pemilik (Owner) dari Kos
             // Asumsi: Model Kos memiliki relasi 'user' atau 'owner' yang mengarah ke User model
             // Jika model Kos Anda memiliki kolom 'user_id' yang menunjuk ke Pemilik:
             $owner = $kos->user; // Asumsi: $kos->user adalah relasi di model Kos yang mengarah ke pemilik (User)
-            
+
             // Atau jika ID pemilik ada di Kos model:
             // $owner = User::find($kos->id_owner_kolom); // Ganti id_owner_kolom dengan nama kolom yang benar
 
@@ -71,8 +71,8 @@ class penghuniController extends Controller
         // Handle upload foto profil
         if ($request->hasFile('foto_profile')) {
             // Hapus foto lama jika ada
-            if ($user->foto_profile) { 
-                Storage::delete($user->foto_profile); 
+            if ($user->foto_profile) {
+                Storage::delete($user->foto_profile);
             }
 
             // Simpan foto baru

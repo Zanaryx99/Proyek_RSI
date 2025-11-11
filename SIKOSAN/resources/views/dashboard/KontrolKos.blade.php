@@ -31,12 +31,6 @@
                 <div class="relative">
                     <img src="{{ $kos->foto ? asset('storage/' . $kos->foto) : 'https://images.unsplash.com/photo-1585098944543-9b57827238fb?q=80&w=2070' }}"
                         alt="Foto Kost" class="w-full h-60 object-cover rounded-lg">
-                    <button
-                        class="absolute left-2 top-1/2 -translate-y-1/2 bg-white/70 rounded-full p-2 hover:bg-white"><i
-                            class='bx bx-chevron-left text-2xl'></i></button>
-                    <button
-                        class="absolute right-2 top-1/2 -translate-y-1/2 bg-white/70 rounded-full p-2 hover:bg-white"><i
-                            class='bx bx-chevron-right text-2xl'></i></button>
                 </div>
                 <h2 class="text-2xl font-bold text-gray-800 mt-4">{{ $kos->nama_kos ?? 'Nama Kost' }}</h2>
                 <p class="text-sm text-gray-500">Jenis Kos: {{ $kos->jenis ?? '-' }}</p>
@@ -98,20 +92,20 @@
                     <button id="openRatingsModalBtn" class="flex items-center p-0 m-0 text-left hover:underline focus:outline-none">
                         @for($i=0; $i < $fullStars; $i++)
                             <i class='bx bxs-star text-yellow-500'></i>
-                        @endfor
-                        @if($halfStar)
+                            @endfor
+                            @if($halfStar)
                             <i class='bx bxs-star-half text-yellow-500'></i>
-                        @endif
-                        @for($i = $fullStars + ($halfStar ? 1 : 0); $i < 5; $i++)
-                            <i class='bx bxs-star text-gray-300'></i>
-                        @endfor
-
-                        <span class="ml-2 text-sm font-semibold text-gray-700">
-                            {{ $displayRating ? $displayRating . '/5' : 'Belum ada penilaian' }}
-                            @if($reviewsCount > 0)
-                                <span class="text-xs text-gray-500">({{ $reviewsCount }} review)</span>
                             @endif
-                        </span>
+                            @for($i = $fullStars + ($halfStar ? 1 : 0); $i < 5; $i++)
+                                <i class='bx bxs-star text-gray-300'></i>
+                                @endfor
+
+                                <span class="ml-2 text-sm font-semibold text-gray-700">
+                                    {{ $displayRating ? $displayRating . '/5' : 'Belum ada penilaian' }}
+                                    @if($reviewsCount > 0)
+                                    <span class="text-xs text-gray-500">({{ $reviewsCount }} review)</span>
+                                    @endif
+                                </span>
                     </button>
                 </div>
             </div>
@@ -146,23 +140,23 @@
                                     {{-- Daftar review individual --}}
                                     <div class="mt-4 max-h-72 overflow-y-auto space-y-3">
                                         @forelse($reviews ?? collect() as $r)
-                                            <div class="p-3 bg-white border rounded-lg">
-                                                <div class="flex items-start gap-3">
-                                                    <img class="w-10 h-10 rounded-full" src="{{ isset($r['user']) && $r['user'] && $r['user']->foto_profile ? asset('storage/' . $r['user']->foto_profile) : 'https://i.pravatar.cc/40?u=' . ($r['user_id'] ?? 'guest') }}" alt="avatar">
-                                                    <div class="flex-1">
-                                                        <div class="flex items-center justify-between">
-                                                            <div>
-                                                                <p class="font-medium text-gray-900">{{ isset($r['user']) && $r['user'] ? $r['user']->nama_lengkap : 'Penghuni' }}</p>
-                                                                <p class="text-xs text-gray-500">Kamar: {{ $r['nama_kamar'] }}</p>
-                                                            </div>
-                                                            <div class="text-sm text-yellow-500 font-semibold">{{ $r['rating'] }}/5</div>
+                                        <div class="p-3 bg-white border rounded-lg">
+                                            <div class="flex items-start gap-3">
+                                                <img class="w-10 h-10 rounded-full" src="{{ isset($r['user']) && $r['user'] && $r['user']->foto_profile ? asset('storage/' . $r['user']->foto_profile) : 'https://i.pravatar.cc/40?u=' . ($r['user_id'] ?? 'guest') }}" alt="avatar">
+                                                <div class="flex-1">
+                                                    <div class="flex items-center justify-between">
+                                                        <div>
+                                                            <p class="font-medium text-gray-900">{{ isset($r['user']) && $r['user'] ? $r['user']->nama_lengkap : 'Penghuni' }}</p>
+                                                            <p class="text-xs text-gray-500">Kamar: {{ $r['nama_kamar'] }}</p>
                                                         </div>
-                                                        <p class="text-gray-700 mt-2">{{ $r['review'] ?? '-' }}</p>
+                                                        <div class="text-sm text-yellow-500 font-semibold">{{ $r['rating'] }}/5</div>
                                                     </div>
+                                                    <p class="text-gray-700 mt-2">{{ $r['review'] ?? '-' }}</p>
                                                 </div>
                                             </div>
+                                        </div>
                                         @empty
-                                            <div class="text-center text-gray-500">Belum ada review dari penghuni.</div>
+                                        <div class="text-center text-gray-500">Belum ada review dari penghuni.</div>
                                         @endforelse
                                     </div>
 
@@ -174,12 +168,10 @@
                         </div>
                     </div>
                 </div>
-    </div>
-            <div class="py-12">
-    <div class="max-w-7xl mx-auto sm:px-6 lg:px-8">
-        @livewire('announcement-sender')
-    </div>
-</div>
+            </div>
+            <div class="lg:col-span-2">
+                @livewire('announcement-sender')
+            </div>
         </div>
 
         </div>
@@ -189,118 +181,115 @@
             <div class="bg-white p-6 rounded-xl shadow-md">
                 <h2 class="text-xl font-bold mb-4">Rincian Pemasukan Bulan Ini</h2>
 
-    <div class="space-y-4">
-        
-        <div class="grid grid-cols-4 font-semibold text-gray-600 border-b pb-2">
-            <div class="col-span-1">TANGGAL BAYAR</div>
-            <div class="col-span-1">METODE</div>
-            <div class="col-span-1 text-right">NOMINAL</div>
-            <div class="col-span-1 text-center">BUKTI</div>
-        </div>
+                <div class="space-y-4">
 
-        @forelse ($pemasukanBulanIni as $pembayaran)
-            <div class="grid grid-cols-4 items-center py-2 border-b last:border-b-0">
-                <div class="col-span-1 text-sm text-gray-800">
-                    {{ \Carbon\Carbon::parse($pembayaran->tanggal_bayar)->translatedFormat('d F Y') }}
-                </div>
-                <div class="col-span-1 text-sm text-gray-600">
-                    {{ $pembayaran->metode_pembayaran }}
-                </div>
-                <div class="col-span-1 text-right font-medium text-green-600">
-                    {{ 'Rp ' . number_format($pembayaran->nominal, 0, ',', '.') }}
-                </div>
-                <div class="col-span-1 text-center">
-                    <button 
-    onclick="openPreviewModal('{{ asset('storage/' . $pembayaran->bukti_pembayaran) }}')"
-    class="text-xs font-semibold text-teal-600 hover:text-teal-800 focus:outline-none"
->
-    Lihat
-</button>
+                    <div class="grid grid-cols-4 font-semibold text-gray-600 border-b pb-2">
+                        <div class="col-span-1">TANGGAL BAYAR</div>
+                        <div class="col-span-1">METODE</div>
+                        <div class="col-span-1 text-right">NOMINAL</div>
+                        <div class="col-span-1 text-center">BUKTI</div>
+                    </div>
+
+                    @forelse ($pemasukanBulanIni as $pembayaran)
+                    <div class="grid grid-cols-4 items-center py-2 border-b last:border-b-0">
+                        <div class="col-span-1 text-sm text-gray-800">
+                            {{ \Carbon\Carbon::parse($pembayaran->tanggal_bayar)->translatedFormat('d F Y') }}
+                        </div>
+                        <div class="col-span-1 text-sm text-gray-600">
+                            {{ $pembayaran->metode_pembayaran }}
+                        </div>
+                        <div class="col-span-1 text-right font-medium text-green-600">
+                            {{ 'Rp ' . number_format($pembayaran->nominal, 0, ',', '.') }}
+                        </div>
+                        <div class="col-span-1 text-center">
+                            <button
+                                onclick="openPreviewModal('{{ asset('storage/' . $pembayaran->bukti_pembayaran) }}')"
+                                class="text-xs font-semibold text-teal-600 hover:text-teal-800 focus:outline-none">
+                                Lihat
+                            </button>
+                        </div>
+                    </div>
+                    @empty
+                    <div class="text-center py-4 text-gray-500">
+                        <p>Tidak ada transaksi pembayaran tercatat bulan ini.</p>
+                    </div>
+                    @endforelse
+
+                    <div class="flex justify-between items-center pt-4 font-bold border-t border-gray-300">
+                        <div class="text-lg">Total Pemasukan</div>
+                        <div class="text-lg text-green-700">
+                            {{ 'Rp ' . number_format($totalPemasukanPembayaran, 0, ',', '.') }}
+                        </div>
+                    </div>
                 </div>
             </div>
-        @empty
-            <div class="text-center py-4 text-gray-500">
-                <p>Tidak ada transaksi pembayaran tercatat bulan ini.</p>
-                </div>
-        @endforelse
-        
-        <div class="flex justify-between items-center pt-4 font-bold border-t border-gray-300">
-            <div class="text-lg">Total Pemasukan</div>
-            <div class="text-lg text-green-700">
-                {{ 'Rp ' . number_format($totalPemasukanPembayaran, 0, ',', '.') }}
-            </div>
-        </div>
-    </div>
-</div>
 
             <div class="bg-white p-6 rounded-xl shadow-md">
                 <h2 class="text-xl font-bold text-gray-800 mb-4">Penghuni Kos</h2>
 
-    <div class="space-y-3">
-    {{-- Gunakan @forelse untuk looping data kamarDihuni --}}
-    @forelse ($kamarDihuni as $kamar)
-    {{-- Lakukan pengecekan ketat apakah relasi user ada sebelum menampilkan data --}}
-    @if ($kamar->user)
-        <div class="flex items-center justify-between p-3 bg-slate-50 rounded-lg">
-            <div class="flex items-center">
-                {{-- Perbaikan: Pengecekan Foto Profil --}}
-                @php
-                    $foto_profile = $kamar->user->foto_profile 
-                                  ? asset('storage/' . $kamar->user->foto_profile) 
-                                  : 'https://i.pravatar.cc/40?u=' . $kamar->user_id;
-                @endphp
+                <div class="space-y-3">
+                    {{-- Gunakan @forelse untuk looping data kamarDihuni --}}
+                    @forelse ($kamarDihuni as $kamar)
+                    {{-- Lakukan pengecekan ketat apakah relasi user ada sebelum menampilkan data --}}
+                    @if ($kamar->user)
+                    <div class="flex items-center justify-between p-3 bg-slate-50 rounded-lg">
+                        <div class="flex items-center">
+                            {{-- Perbaikan: Pengecekan Foto Profil --}}
+                            @php
+                            $foto_profile = $kamar->user->foto_profile
+                            ? asset('storage/' . $kamar->user->foto_profile)
+                            : 'https://i.pravatar.cc/40?u=' . $kamar->user_id;
+                            @endphp
 
-                <img class="w-10 h-10 rounded-full mr-3"
-                    src="{{ $foto_profile }}"
-                    alt="{{ $kamar->user->nama_lengkap ?? 'Avatar Penghuni' }}">
-                <div>
-                    {{-- Tampilkan nama penghuni melalui relasi user --}}
-                    <p class="font-medium text-gray-900">{{ $kamar->user->nama_lengkap }}</p>
-                    {{-- Tampilkan nama/nomor kamar --}}
-                    <p class="text-xs text-gray-500">Menempati: {{ $kamar->nama_kamar ?? 'N/A' }}</p>
+                            <img class="w-10 h-10 rounded-full mr-3"
+                                src="{{ $foto_profile }}"
+                                alt="{{ $kamar->user->nama_lengkap ?? 'Avatar Penghuni' }}">
+                            <div>
+                                {{-- Tampilkan nama penghuni melalui relasi user --}}
+                                <p class="font-medium text-gray-900">{{ $kamar->user->nama_lengkap }}</p>
+                                {{-- Tampilkan nama/nomor kamar --}}
+                                <p class="text-xs text-gray-500">Menempati: {{ $kamar->nama_kamar ?? 'N/A' }}</p>
+                            </div>
+                        </div>
+                        <div class="flex items-center space-x-2">
+
+                            {{-- PERUBAHAN DI SINI: Tombol Kirim Pesan menjadi Link Chat --}}
+                            <a
+                                href="{{ route('chat', $kamar->user) }}"
+                                wire:navigate
+                                class="p-2 rounded-full hover:bg-gray-200 inline-flex items-center justify-center"
+                                title="Kirim Pesan ke {{ $kamar->user->nama_lengkap ?? 'Penghuni' }}">
+                                <i class='bx bx-message-square-dots text-xl text-gray-600'></i>
+                            </a>
+
+                            {{-- Tombol Lihat Profil (Pastikan data-* aman dari null) --}}
+                            <button
+                                class="p-2 rounded-full hover:bg-gray-200 profile-view-btn"
+                                title="Lihat Profil"
+                                onclick="openProfileModal(this)"
+                                data-name="{{ $kamar->user->nama_lengkap ?? 'Penghuni' }}"
+                                data-phone="{{ $kamar->user->no_telepon ?? '-' }}"
+                                data-email="{{ $kamar->user->email ?? '-' }}"
+                                data-foto="{{ $foto_profile }}" {{-- Gunakan variabel yang sudah dibersihkan --}}
+                                data-kamar="{{ $kamar->nama_kamar ?? '' }}"
+                                data-gender="{{ $kamar->user->jenis_kelamin ?? '-' }}">
+                                <i class='bx bx-search-alt-2 text-xl text-gray-600'></i>
+                            </button>
+                        </div>
+                    </div>
+                    @else
+                    {{-- Tambahkan penanda jika kamar terisi tetapi data user hilang/error --}}
+                    <div class="flex items-center justify-between p-3 bg-red-50 rounded-lg">
+                        <p class="font-medium text-red-700">Data Penghuni Error (Kamar {{ $kamar->nama_kamar ?? 'N/A' }})</p>
+                    </div>
+                    @endif
+                    @empty
+                    {{-- Bagian ini akan tampil jika tidak ada kamarDihuni sama sekali --}}
+                    <div class="text-center py-4 text-gray-500">
+                        <p>Belum ada penghuni saat ini.</p>
+                    </div>
+                    @endforelse
                 </div>
-            </div>
-            <div class="flex items-center space-x-2">
-                
-                {{-- PERUBAHAN DI SINI: Tombol Kirim Pesan menjadi Link Chat --}}
-                <a 
-                    href="{{ route('chat', $kamar->user) }}" 
-                    wire:navigate
-                    class="p-2 rounded-full hover:bg-gray-200 inline-flex items-center justify-center" 
-                    title="Kirim Pesan ke {{ $kamar->user->nama_lengkap ?? 'Penghuni' }}"
-                >
-                    <i class='bx bx-message-square-dots text-xl text-gray-600'></i>
-                </a>
-                
-                {{-- Tombol Lihat Profil (Pastikan data-* aman dari null) --}}
-                <button
-                    class="p-2 rounded-full hover:bg-gray-200 profile-view-btn"
-                    title="Lihat Profil"
-                    onclick="openProfileModal(this)"
-                    data-name="{{ $kamar->user->nama_lengkap ?? 'Penghuni' }}"
-                    data-phone="{{ $kamar->user->no_telepon ?? '-' }}"
-                    data-email="{{ $kamar->user->email ?? '-' }}"
-                    data-foto="{{ $foto_profile }}" {{-- Gunakan variabel yang sudah dibersihkan --}}
-                    data-kamar="{{ $kamar->nama_kamar ?? '' }}"
-                    data-gender="{{ $kamar->user->jenis_kelamin ?? '-' }}"
-                >
-                    <i class='bx bx-search-alt-2 text-xl text-gray-600'></i>
-                </button>
-            </div>
-        </div>
-    @else
-        {{-- Tambahkan penanda jika kamar terisi tetapi data user hilang/error --}}
-        <div class="flex items-center justify-between p-3 bg-red-50 rounded-lg">
-            <p class="font-medium text-red-700">Data Penghuni Error (Kamar {{ $kamar->nama_kamar ?? 'N/A' }})</p>
-        </div>
-    @endif
-    @empty
-    {{-- Bagian ini akan tampil jika tidak ada kamarDihuni sama sekali --}}
-    <div class="text-center py-4 text-gray-500">
-        <p>Belum ada penghuni saat ini.</p>
-    </div>
-    @endforelse
-</div>
 
     </main>
 
@@ -369,7 +358,7 @@
                             Ya, Logout
                         </button>
                     </form>
-                    <button type="button" onclick="closeLogoutModal()" class="mt-3 w-full inline-flex justify-center rounded-lg border border-gray-300 shadow-sm px-6 py-2.5 bg-white text-base font-semibold text-gray-700 hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-teal-500 transition-colors sm:mt-0 sm:w-auto sm:text-sm">
+                    <button type="button" onclick="closeLogoutModal()" class="w-full inline-flex justify-center rounded-lg border shadow-sm px-6 py-2.5 bg-white text-base font-semibold text-gray-700 hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-teal-500 transition-colors sm:w-auto sm:text-sm">
                         Batal
                     </button>
                 </div>
@@ -388,8 +377,8 @@
                         <img id="profileModalFoto" class="w-20 h-20 rounded-full mr-4" src="https://i.pravatar.cc/100" alt="avatar">
                         <div class="mt-3 text-left w-full">
                             <h3 class="text-xl leading-6 font-bold text-gray-900" id="profileModalName">Nama Penghuni</h3>
-                            <p class="text-sm text-gray-600 mt-1"><strong>Kamar      :</strong> <span id="profileModalKamar">-</span></p>
-                            <p class="text-sm text-gray-600 mt-1"><strong>Gender     :</strong> <span id="profileModalGender">-</span></p>
+                            <p class="text-sm text-gray-600 mt-1"><strong>Kamar :</strong> <span id="profileModalKamar">-</span></p>
+                            <p class="text-sm text-gray-600 mt-1"><strong>Gender :</strong> <span id="profileModalGender">-</span></p>
                             <p class="text-sm text-gray-600 mt-1"><strong>Email :</strong> <span id="profileModalEmail">-</span></p>
                             <p class="text-sm text-gray-600 mt-1"><strong>Telepon :</strong> <span id="profileModalPhone">-</span></p>
                         </div>
@@ -410,19 +399,18 @@
         <div class="fixed inset-0 bg-gray-900 bg-opacity-90 transition-opacity" onclick="closePreviewModal()"></div>
 
         <div class="inline-block align-middle rounded-lg text-left overflow-hidden transform transition-all sm:my-8 sm:align-middle sm:max-w-3xl sm:w-full">
-            
+
             <div class="relative bg-white rounded-lg p-1">
-                <button 
-                    type="button" 
-                    onclick="closePreviewModal()" 
-                    class="absolute top-2 right-2 text-white bg-gray-800 bg-opacity-70 hover:bg-opacity-100 p-1.5 rounded-full z-10 focus:outline-none"
-                >
+                <button
+                    type="button"
+                    onclick="closePreviewModal()"
+                    class="absolute top-2 right-2 text-white bg-gray-800 bg-opacity-70 hover:bg-opacity-100 p-1.5 rounded-full z-10 focus:outline-none">
                     <i class='bx bx-x text-xl'></i>
                 </button>
 
                 <img id="bukti-image-preview" src="" alt="Bukti Pembayaran" class="w-full h-auto max-h-[80vh] object-contain rounded-lg">
             </div>
-            
+
         </div>
     </div>
 </div>
@@ -550,7 +538,7 @@
         const email = el.dataset.email || '-';
         const foto = el.dataset.foto || 'https://i.pravatar.cc/100';
         const kamar = el.dataset.kamar || '-';
-    const gender = (el.dataset.gender || '-');
+        const gender = (el.dataset.gender || '-');
 
         const modal = document.getElementById('profileModal');
         if (!modal) return;
@@ -612,10 +600,10 @@
     function openPreviewModal(imageUrl) {
         // Set sumber gambar
         buktiImagePreview.src = imageUrl;
-        
+
         // Tampilkan modal
         previewModal.classList.remove('hidden');
-        document.body.style.overflow = 'hidden'; 
+        document.body.style.overflow = 'hidden';
     }
 
     /**
@@ -623,7 +611,7 @@
      */
     function closePreviewModal() {
         previewModal.classList.add('hidden');
-        document.body.style.overflow = 'auto'; 
+        document.body.style.overflow = 'auto';
         // Bersihkan sumber gambar setelah ditutup (opsional)
         buktiImagePreview.src = '';
     }
