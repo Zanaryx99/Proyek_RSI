@@ -4,6 +4,8 @@ namespace App\Http\Controllers;
 
 use App\Models\Kos;
 use App\Models\Kamar;
+use App\Models\Pembayaran;
+use Carbon\Carbon;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Storage;
@@ -137,47 +139,107 @@ class PemilikController extends Controller
         // Ambil semua data terkait dengan efisien
         $semuaKamar = Kamar::where('kos_id', $kos->id)->with('user')->get();
 
-        // 1. Filter kamar yang dihuni (ini adalah data yang kita butuhkan)
+        // 1. Filter kamar yang dihuni
         $kamarDihuni = $semuaKamar->where('status', 'terisi')->whereNotNull('user_id');
 
-        // 2. Hitung total pemasukan langsung dari kamar yang dihuni
-        $totalPemasukan = $kamarDihuni->sum('harga_sewa');
+        // --- 2. Data Pemasukan Bulan INI ---
+        $startOfMonth = Carbon::now()->startOfMonth();
+        $endOfMonth = Carbon::now()->endOfMonth();
+        
+        // Asumsi: Pembayaran terhubung ke kamar/user, bukan langsung ke kos. 
+        // Kita ambil semua pembayaran yang masuk bulan ini, lalu hitung totalnya.
+        $pemasukanBulanIni = Pembayaran::whereBetween('tanggal_bayar', [$startOfMonth, $endOfMonth])->get();
+        $totalPemasukanPembayaran = $pemasukanBulanIni->sum('nominal');
+        // Rename variabel total pemasukan agar sama dengan yang digunakan di view
+        $totalPemasukan = $totalPemasukanPembayaran; // Mengatasi Undefined variable $totalPemasukan di view
 
-        // Kalkulasi lain untuk ringkasan (jika masih diperlukan)
+        // --- 3. Kalkulasi Ringkasan dan Reviews ---
         $avgHarga = $semuaKamar->isNotEmpty() ? round($semuaKamar->avg('harga_sewa')) : null;
         $minMinimal = $semuaKamar->isNotEmpty() ? $semuaKamar->min('minimal_waktu_sewa') : null;
         $jumlahPenghuni = $kamarDihuni->count();
         $rating = $kos->rating ?? null;
 
-        // Kumpulkan daftar review dari kamar yang memiliki rating (asumsi rating & review disimpan di model Kamar)
+        // Kumpulkan daftar review
         $reviews = $kamarDihuni->filter(function ($k) {
             return !is_null($k->rating) && trim((string)($k->rating)) !== '';
         })->map(function ($k) {
             return [
-                'user' => $k->user, // relasi user (bisa null kalau data tak konsisten)
+                'user' => $k->user, 
                 'nama_kamar' => $k->nama_kamar,
                 'rating' => $k->rating,
-                'review' => $k->review,
+                'review' => $k->review, 
                 'user_id' => $k->user_id,
             ];
-        })->values();
-
-        // Hitung rata-rata rating berdasarkan review yang ada (bulatkan ke 0.5 terdekat untuk tampilan)
+        })->values(); // <--- PASTIKAN TITIK KOMA (;) DI SINI, BUKAN TITIK DUA (:)
+        
         $avgRating = $reviews->isNotEmpty() ? round($reviews->avg('rating') * 2) / 2 : null;
 
-        // Kirim data yang benar ke View
+        // --- 4. LOGIC TAGIHAN BULAN LALU (TIDAK ADA REDUNDANSI QUERY LAGI) ---
+
+        $startLastMonth = Carbon::now()->subMonth()->startOfMonth();
+        $endLastMonth = Carbon::now()->subMonth()->endOfMonth();
+
+        // A. Ambil semua pembayaran yang masuk BULAN LALU
+        $pembayaranBulanLalu = Pembayaran::whereBetween('tanggal_bayar', [$startLastMonth, $endLastMonth])
+                                         ->get();
+        
+        // B. Gabungkan data pembayaran bulan lalu (group by user_id)
+        $totalBayarBulanLaluPerUser = $pembayaranBulanLalu->groupBy('user_id')->map(function ($rows) {
+            return $rows->sum('nominal');
+        });
+
+        // C. Hitung Status Tagihan untuk setiap kamar dihuni
+        $tagihanBulanLalu = $kamarDihuni->map(function ($kamar) use ($totalBayarBulanLaluPerUser) {
+            
+            $userId = $kamar->user_id;
+            $hargaSewa = $kamar->harga_sewa;
+            $nominalBayar = $totalBayarBulanLaluPerUser->get($userId, 0); 
+            $hariTenggat = 5; 
+            $jatuhTempo = Carbon::now()->startOfMonth()->addDays($hariTenggat - 1)->format('d F Y');
+            
+            if ($nominalBayar >= $hargaSewa) {
+                $status = 'LUNAS';
+            } elseif ($nominalBayar > 0) {
+                $status = 'BELUM LUNAS (Kurang)';
+            } else {
+                $status = 'BELUM BAYAR';
+            }
+            
+            $selisih = $hargaSewa - $nominalBayar;
+
+            return [
+                'nama_penghuni' => $kamar->user->name ?? 'N/A', 
+                'nama_kamar' => $kamar->nama_kamar,
+                'harga_sewa' => $hargaSewa,
+                'nominal_bayar' => $nominalBayar,
+                'jatuh_tempo' => $jatuhTempo,
+                'status' => $status,
+                'selisih' => $selisih,
+            ];
+        });
+
+        // --- 5. Return View (HANYA DI AKHIR METHOD) ---
         return view('dashboard.KontrolKos', compact(
             'kos',
-            'kamarDihuni',      // <-- Variabel utama untuk tabel rincian
-            'totalPemasukan',   // <-- Variabel untuk total di footer
+            'semuaKamar',
+            'kamarDihuni',
+            'pemasukanBulanIni',
+            'totalPemasukanPembayaran', 
+            'totalPemasukan', // Tambahkan ini untuk view
             'avgHarga',
             'minMinimal',
             'jumlahPenghuni',
             'rating',
             'reviews',
-            'avgRating'
+            'avgRating', 
+            'tagihanBulanLalu' // Variabel krusial
         ));
-    }
+    } 
+
+// ... (lanjutan code untuk method profil, update_profil, dll) ...
+
+
+    
 
     // ==================== METHOD UNTUK Profil ====================
 

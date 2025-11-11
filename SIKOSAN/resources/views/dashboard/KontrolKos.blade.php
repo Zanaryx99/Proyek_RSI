@@ -174,11 +174,12 @@
                         </div>
                     </div>
                 </div>
-            </div>
-            <button
-                class="w-full mt-4 py-2 px-4 bg-blue-600 text-white font-semibold rounded-lg hover:bg-blue-700 transition-colors">
-                Buat Pengumuman
-            </button>
+    </div>
+            <div class="py-12">
+    <div class="max-w-7xl mx-auto sm:px-6 lg:px-8">
+        @livewire('announcement-sender')
+    </div>
+</div>
         </div>
 
         </div>
@@ -186,127 +187,120 @@
         <div class="lg:col-span-2 mt-20 space-y-6">
 
             <div class="bg-white p-6 rounded-xl shadow-md">
-                <h2 class="text-xl font-bold text-gray-800 mb-4">Rincian Pemasukan Bulan Ini</h2>
-                <table class="w-full text-sm text-left text-gray-600">
-                    <thead class="text-xs text-gray-700 uppercase bg-gray-50">
-                        <tr>
-                            <th scope="col" class="px-4 py-3">Nama Kamar</th>
-                            <th scope="col" class="px-4 py-3">Tipe Kamar</th>
-                            <th scope="col" class="px-4 py-3">Harga Sewa</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        {{-- Lakukan perulangan untuk SETIAP kamar yang dihuni --}}
-                        @forelse ($kamarDihuni as $kamar)
-                        <tr class="border-b">
-                            <td class="px-4 py-3 font-medium">{{ $kamar->nama_kamar }}</td>
-                            <td class="px-4 py-3">{{ $kamar->tipe_kamar ?: 'Tidak ada tipe' }}</td>
-                            <td class="px-4 py-3">Rp {{ number_format($kamar->harga_sewa, 0, ',', '.') }}</td>
-                        </tr>
-                        @empty
-                        {{-- Tampil jika tidak ada kamar yang dihuni --}}
-                        <tr class="border-b">
-                            <td colspan="3" class="px-4 py-3 text-center text-gray-500">
-                                Tidak ada pemasukan bulan ini.
-                            </td>
-                        </tr>
-                        @endforelse
-                    </tbody>
-                    <tfoot class="font-semibold text-gray-800">
-                        <tr>
-                            <td colspan="2" class="px-4 py-3 text-right">Total Pemasukan</td>
-                            {{-- Gunakan variabel total pemasukan yang sudah dihitung --}}
-                            <td class="px-4 py-3">Rp {{ number_format($totalPemasukan, 0, ',', '.') }}</td>
-                        </tr>
-                    </tfoot>
-                </table>
-            </div>
+                <h2 class="text-xl font-bold mb-4">Rincian Pemasukan Bulan Ini</h2>
 
-            <div class="bg-white p-6 rounded-xl shadow-md">
-                <h2 class="text-xl font-bold text-gray-800 mb-4">Tagihan Bulan Lalu</h2>
-                <table class="w-full text-sm text-left text-gray-600">
-                    <thead class="text-xs text-gray-700 uppercase bg-gray-50">
-                        <tr>
-                            <th scope="col" class="px-4 py-3">Jenis Tagihan</th>
-                            <th scope="col" class="px-4 py-3">Status Pembayaran</th>
-                            <th scope="col" class="px-4 py-3">Pengeluaran</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        {{-- Lakukan perulangan untuk SETIAP kamar yang dihuni --}}
-                        @forelse ($kamarDihuni as $kamar)
-                        <tr class="border-b">
-                            <td class="px-4 py-3 font-medium">{{ $kamar->nama_kamar }}</td>
-                            <td class="px-4 py-3">{{ $kamar->tipe_kamar ?: 'Tidak ada tipe' }}</td>
-                            <td class="px-4 py-3">Rp {{ number_format($kamar->harga_sewa, 0, ',', '.') }}</td>
-                        </tr>
-                        @empty
-                        {{-- Tampil jika tidak ada kamar yang dihuni --}}
-                        <tr class="border-b">
-                            <td colspan="3" class="px-4 py-3 text-center text-gray-500">
-                                Tidak ada pemasukan bulan ini.
-                            </td>
-                        </tr>
-                        @endforelse
-                    </tbody>
-                    <tfoot class="font-semibold text-gray-800">
-                        <tr>
-                            <td colspan="2" class="px-4 py-3 text-right">Total Pemasukan</td>
-                            {{-- Gunakan variabel total pemasukan yang sudah dihitung --}}
-                            <td class="px-4 py-3">Rp {{ number_format($totalPemasukan, 0, ',', '.') }}</td>
-                        </tr>
-                    </tfoot>
-                </table>
+    <div class="space-y-4">
+        
+        <div class="grid grid-cols-4 font-semibold text-gray-600 border-b pb-2">
+            <div class="col-span-1">TANGGAL BAYAR</div>
+            <div class="col-span-1">METODE</div>
+            <div class="col-span-1 text-right">NOMINAL</div>
+            <div class="col-span-1 text-center">BUKTI</div>
+        </div>
+
+        @forelse ($pemasukanBulanIni as $pembayaran)
+            <div class="grid grid-cols-4 items-center py-2 border-b last:border-b-0">
+                <div class="col-span-1 text-sm text-gray-800">
+                    {{ \Carbon\Carbon::parse($pembayaran->tanggal_bayar)->translatedFormat('d F Y') }}
+                </div>
+                <div class="col-span-1 text-sm text-gray-600">
+                    {{ $pembayaran->metode_pembayaran }}
+                </div>
+                <div class="col-span-1 text-right font-medium text-green-600">
+                    {{ 'Rp ' . number_format($pembayaran->nominal, 0, ',', '.') }}
+                </div>
+                <div class="col-span-1 text-center">
+                    <button 
+    onclick="openPreviewModal('{{ asset('storage/' . $pembayaran->bukti_pembayaran) }}')"
+    class="text-xs font-semibold text-teal-600 hover:text-teal-800 focus:outline-none"
+>
+    Lihat
+</button>
+                </div>
             </div>
+        @empty
+            <div class="text-center py-4 text-gray-500">
+                <p>Tidak ada transaksi pembayaran tercatat bulan ini.</p>
+                </div>
+        @endforelse
+        
+        <div class="flex justify-between items-center pt-4 font-bold border-t border-gray-300">
+            <div class="text-lg">Total Pemasukan</div>
+            <div class="text-lg text-green-700">
+                {{ 'Rp ' . number_format($totalPemasukanPembayaran, 0, ',', '.') }}
+            </div>
+        </div>
+    </div>
+</div>
 
             <div class="bg-white p-6 rounded-xl shadow-md">
                 <h2 class="text-xl font-bold text-gray-800 mb-4">Penghuni Kos</h2>
 
-                <div class="space-y-3">
-                    {{-- Gunakan @forelse untuk looping data kamarDihuni --}}
-                    @forelse ($kamarDihuni as $kamar)
-                    <div class="flex items-center justify-between p-3 bg-slate-50 rounded-lg">
-                        <div class="flex items-center">
-                            {{-- Tampilkan foto profil default atau dari user jika ada --}}
-                            <img class="w-10 h-10 rounded-full mr-3"
-                                src="{{asset('storage/' . $kamar->user->foto_profile) ?? 'https://i.pravatar.cc/40?u=' . $kamar->user_id }}"
-                                alt="Avatar">
-                            <div>
-                                {{-- Tampilkan nama penghuni melalui relasi user --}}
-                                <p class="font-medium text-gray-900">{{ $kamar->user->nama_lengkap ?? 'Data Penghuni Error' }}</p>
-                                {{-- Tampilkan nama/nomor kamar --}}
-                                <p class="text-xs text-gray-500">Menempati: {{ $kamar->nama_kamar ?? 'N/A' }}</p>
-                            </div>
-                        </div>
-                        <div class="flex items-center space-x-2">
-                            {{-- Tombol aksi bisa ditambahkan di sini --}}
-                            <button class="p-2 rounded-full hover:bg-gray-200" title="Kirim Pesan">
-                                <i class='bx bx-message-square-dots text-xl text-gray-600'></i>
-                            </button>
-                            <button
-                                class="p-2 rounded-full hover:bg-gray-200 profile-view-btn"
-                                title="Lihat Profil"
-                                onclick="openProfileModal(this)"
-                                data-name="{{ $kamar->user->nama_lengkap ?? 'Penghuni' }}"
-                                data-phone="{{ $kamar->user->no_telepon ?? '-' }}"
-                                data-email="{{ $kamar->user->email ?? '-' }}"
-                                data-foto="{{ $kamar->user && $kamar->user->foto_profile ? asset('storage/' . $kamar->user->foto_profile) : 'https://i.pravatar.cc/100?u=' . ($kamar->user_id ?? 'guest') }}"
-                                data-kamar="{{ $kamar->nama_kamar ?? '' }}"
-                                data-gender="{{ $kamar->user->jenis_kelamin ?? '-' }}"
-                            >
-                                <i class='bx bx-search-alt-2 text-xl text-gray-600'></i>
-                            </button>
-                        </div>
-                    </div>
-                    @empty
-                    {{-- Bagian ini akan tampil jika tidak ada penghuni sama sekali --}}
-                    <div class="text-center py-4 text-gray-500">
-                        <p>Belum ada penghuni saat ini.</p>
-                    </div>
-                    @endforelse
+    <div class="space-y-3">
+    {{-- Gunakan @forelse untuk looping data kamarDihuni --}}
+    @forelse ($kamarDihuni as $kamar)
+    {{-- Lakukan pengecekan ketat apakah relasi user ada sebelum menampilkan data --}}
+    @if ($kamar->user)
+        <div class="flex items-center justify-between p-3 bg-slate-50 rounded-lg">
+            <div class="flex items-center">
+                {{-- Perbaikan: Pengecekan Foto Profil --}}
+                @php
+                    $foto_profile = $kamar->user->foto_profile 
+                                  ? asset('storage/' . $kamar->user->foto_profile) 
+                                  : 'https://i.pravatar.cc/40?u=' . $kamar->user_id;
+                @endphp
+
+                <img class="w-10 h-10 rounded-full mr-3"
+                    src="{{ $foto_profile }}"
+                    alt="{{ $kamar->user->nama_lengkap ?? 'Avatar Penghuni' }}">
+                <div>
+                    {{-- Tampilkan nama penghuni melalui relasi user --}}
+                    <p class="font-medium text-gray-900">{{ $kamar->user->nama_lengkap }}</p>
+                    {{-- Tampilkan nama/nomor kamar --}}
+                    <p class="text-xs text-gray-500">Menempati: {{ $kamar->nama_kamar ?? 'N/A' }}</p>
                 </div>
             </div>
+            <div class="flex items-center space-x-2">
+                
+                {{-- PERUBAHAN DI SINI: Tombol Kirim Pesan menjadi Link Chat --}}
+                <a 
+                    href="{{ route('chat', $kamar->user) }}" 
+                    wire:navigate
+                    class="p-2 rounded-full hover:bg-gray-200 inline-flex items-center justify-center" 
+                    title="Kirim Pesan ke {{ $kamar->user->nama_lengkap ?? 'Penghuni' }}"
+                >
+                    <i class='bx bx-message-square-dots text-xl text-gray-600'></i>
+                </a>
+                
+                {{-- Tombol Lihat Profil (Pastikan data-* aman dari null) --}}
+                <button
+                    class="p-2 rounded-full hover:bg-gray-200 profile-view-btn"
+                    title="Lihat Profil"
+                    onclick="openProfileModal(this)"
+                    data-name="{{ $kamar->user->nama_lengkap ?? 'Penghuni' }}"
+                    data-phone="{{ $kamar->user->no_telepon ?? '-' }}"
+                    data-email="{{ $kamar->user->email ?? '-' }}"
+                    data-foto="{{ $foto_profile }}" {{-- Gunakan variabel yang sudah dibersihkan --}}
+                    data-kamar="{{ $kamar->nama_kamar ?? '' }}"
+                    data-gender="{{ $kamar->user->jenis_kelamin ?? '-' }}"
+                >
+                    <i class='bx bx-search-alt-2 text-xl text-gray-600'></i>
+                </button>
+            </div>
         </div>
+    @else
+        {{-- Tambahkan penanda jika kamar terisi tetapi data user hilang/error --}}
+        <div class="flex items-center justify-between p-3 bg-red-50 rounded-lg">
+            <p class="font-medium text-red-700">Data Penghuni Error (Kamar {{ $kamar->nama_kamar ?? 'N/A' }})</p>
+        </div>
+    @endif
+    @empty
+    {{-- Bagian ini akan tampil jika tidak ada kamarDihuni sama sekali --}}
+    <div class="text-center py-4 text-gray-500">
+        <p>Belum ada penghuni saat ini.</p>
+    </div>
+    @endforelse
+</div>
 
     </main>
 
@@ -408,6 +402,31 @@
         </div>
     </div>
 </body>
+
+<!--modal untuk melihat bukti pembayaran-->
+<div id="preview-modal" class="fixed inset-0 z-50 overflow-y-auto hidden">
+    <div class="flex items-center justify-center min-h-screen px-4 pt-4 pb-20 text-center sm:block sm:p-0">
+
+        <div class="fixed inset-0 bg-gray-900 bg-opacity-90 transition-opacity" onclick="closePreviewModal()"></div>
+
+        <div class="inline-block align-middle rounded-lg text-left overflow-hidden transform transition-all sm:my-8 sm:align-middle sm:max-w-3xl sm:w-full">
+            
+            <div class="relative bg-white rounded-lg p-1">
+                <button 
+                    type="button" 
+                    onclick="closePreviewModal()" 
+                    class="absolute top-2 right-2 text-white bg-gray-800 bg-opacity-70 hover:bg-opacity-100 p-1.5 rounded-full z-10 focus:outline-none"
+                >
+                    <i class='bx bx-x text-xl'></i>
+                </button>
+
+                <img id="bukti-image-preview" src="" alt="Bukti Pembayaran" class="w-full h-auto max-h-[80vh] object-contain rounded-lg">
+            </div>
+            
+        </div>
+    </div>
+</div>
+
 <script>
     // FUNGSI UMUM UNTUK MENGELOLA TOGGLE DROPDOWN
     function setupDropdownToggle(buttonId, menuId) {
@@ -582,6 +601,39 @@
         modal.classList.add('hidden');
         document.body.style.overflow = 'auto';
     }
+
+    const previewModal = document.getElementById('preview-modal');
+    const buktiImagePreview = document.getElementById('bukti-image-preview');
+
+    /**
+     * Membuka modal preview gambar
+     * @param {string} imageUrl - URL gambar bukti pembayaran
+     */
+    function openPreviewModal(imageUrl) {
+        // Set sumber gambar
+        buktiImagePreview.src = imageUrl;
+        
+        // Tampilkan modal
+        previewModal.classList.remove('hidden');
+        document.body.style.overflow = 'hidden'; 
+    }
+
+    /**
+     * Menutup modal preview
+     */
+    function closePreviewModal() {
+        previewModal.classList.add('hidden');
+        document.body.style.overflow = 'auto'; 
+        // Bersihkan sumber gambar setelah ditutup (opsional)
+        buktiImagePreview.src = '';
+    }
+
+    // Menutup modal jika user mengklik overlay
+    previewModal.addEventListener('click', function(event) {
+        if (event.target === previewModal) {
+            closePreviewModal();
+        }
+    });
 </script>
 
 </html>

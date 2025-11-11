@@ -228,26 +228,50 @@
                     </div>
 
                     <!-- Tombol Aksi -->
-                    <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
-                        <button class="action-button btn-primary">
-                            <i class='bx bx-chat'></i>
-                            Chat Pemilik
-                        </button>
+                    <div class="grid grid-cols-3 gap-3 mb-4"> {{-- Container untuk 3 tombol aksi --}}
+@if (isset($owner))
+    {{-- TOMBOL 1: CHAT PEMILIK (Aktif, menggunakan $owner) --}}
+    <a href="{{ route('chat', $owner) }}" class="action-button btn-primary">
+        <i class='bx bx-chat'></i>
+        Chat Pemilik
+    </a>
+@else
+    {{-- TOMBOL 1: CHAT PEMILIK (Non-Aktif jika owner tidak ada) --}}
+    <button class="action-button btn-primary" disabled>
+        <i class='bx bx-chat'></i>
+        Chat Pemilik
+    </button>
+@endif
 
+    {{-- TOMBOL 2: ULAS KOS --}}
                         <button class="action-button btn-secondary" onclick="openReviewModal()">
                             <i class='bx bx-star'></i>
                             Ulas Kos
                         </button>
+                        
+    
+    {{-- TOMBOL 3: PEMBAYARAN (Menggunakan fungsi onclick sesuai kode referensi Anda) --}}
+    <button 
+    type="button" 
+    onclick="openBuktiPembayaranModal()" 
+    class="action-button btn-primary" 
+>
+    <i class='bx bx-dollar'></i>
+    Pembayaran
+</button>
+</div>
 
-                        <form action="{{ route('kamar.keluar', $kamarDitempati->id) }}" method="POST"
-                            onsubmit="return confirm('Apakah Anda yakin ingin mengakhiri kontrak?')">
-                            @csrf
-                            <button type="submit" class="action-button btn-danger w-full">
-                                <i class='bx bx-log-out'></i>
-                                Akhiri Kontrak
-                            </button>
-                        </form>
-                    </div>
+{{-- Tombol AKHIRI KONTRAK tetap di luar grid dan w-full --}}
+<div class="mt-4">
+    <button 
+        type="button" 
+        onclick="openEndContractModal({{ $kamarDitempati->id }})" 
+        class="action-button btn-danger w-full text-lg py-3" 
+    >
+        <i class='bx bx-log-out'></i>
+        AKHIRI KONTRAK
+    </button>
+</div>
 
                     <!-- Fasilitas Umum -->
                     @if($kos->fasilitas_umum)
@@ -424,6 +448,138 @@
         </div>
     </div>
 
+    <!--Modal pembayran-->
+<div id="modal-bukti-pembayaran" class="fixed inset-0 z-50 overflow-y-auto hidden">
+    <div class="flex items-center justify-center min-h-screen px-4 pt-4 pb-20 text-center sm:block sm:p-0">
+
+        <div class="fixed inset-0 bg-gray-900 bg-opacity-75 transition-opacity" onclick="closeBuktiPembayaranModal()"></div>
+
+        <div class="inline-block align-bottom bg-white rounded-2xl text-left overflow-hidden shadow-xl transform transition-all sm:my-8 sm:align-middle sm:max-w-md sm:w-full">
+            
+            <form id="bukti-pembayaran-form" method="POST" action="{{ route('pembayaran.store') }}" enctype="multipart/form-data">
+                @csrf
+                
+                <div class="bg-white px-4 pt-5 pb-4 sm:p-6 sm:pb-4">
+                    <div class="sm:flex sm:items-center">
+                        <div class="mx-auto flex-shrink-0 flex items-center justify-center h-12 w-12 rounded-full bg-teal-100 sm:mx-0">
+                            <i class='bx bx-receipt text-2xl text-teal-600'></i>
+                        </div>
+                        <div class="mt-3 text-center sm:mt-0 sm:ml-4 sm:text-left">
+                            <h3 class="text-xl leading-6 font-bold text-gray-900">
+                                Bukti Pembayaran
+                            </h3>
+                        </div>
+                        <button 
+                            type="button" 
+                            onclick="closeBuktiPembayaranModal()" 
+                            class="absolute top-4 right-4 text-gray-400 hover:text-gray-600 transition-colors focus:outline-none"
+                        >
+                            <i class='bx bx-x text-2xl'></i>
+                        </button>
+                    </div>
+
+                    <div class="mt-4 space-y-4">
+                        <label class="block text-sm font-medium text-gray-700">Upload Bukti Gambar</label>
+                        
+                        <div 
+                            id="upload-area-bukti" 
+                            class="flex justify-center px-6 pt-5 pb-6 border-2 border-gray-300 border-dashed rounded-md cursor-pointer hover:border-teal-500 transition-colors"
+                        >
+                            <div class="space-y-1 text-center">
+                                <i class='bx bx-cloud-upload text-5xl text-gray-400'></i>
+                                <div class="text-sm text-gray-600">
+                                    <span class="font-medium text-teal-600 upload-text">
+                                        Klik untuk upload atau drag & drop
+                                    </span>
+                                </div>
+                                <p class="text-xs text-gray-500">PNG, JPG, JPEG (Max. 10MB)</p>
+                            </div>
+                        </div>
+                        <span id="error-bukti" class="text-sm text-red-500 hidden"></span>
+                        
+                        <input id="bukti-pembayaran-file-input" name="bukti_pembayaran_file" type="file" class="sr-only" accept="image/*">
+
+                        <div>
+                            <label for="metode-pembayaran" class="block text-sm font-medium text-gray-700">Metode Pembayaran</label>
+                            <input type="text" id="metode-pembayaran" name="metode_pembayaran" class="mt-1 block w-full border border-gray-300 rounded-md shadow-sm py-2 px-3 focus:outline-none focus:ring-teal-500 focus:border-teal-500 sm:text-sm">
+                            <span id="error-metode" class="text-sm text-red-500 hidden"></span>
+                        </div>
+
+                        <div>
+                            <label for="jumlah-pembayaran" class="block text-sm font-medium text-gray-700">Jumlah Pembayaran</label>
+                            <input type="number" id="jumlah-pembayaran" name="nominal" class="mt-1 block w-full border border-gray-300 rounded-md shadow-sm py-2 px-3 focus:outline-none focus:ring-teal-500 focus:border-teal-500 sm:text-sm">
+                            <span id="error-jumlah" class="text-sm text-red-500 hidden"></span>
+                        </div>
+
+                        <div>
+                            <label for="id-tagihan" class="block text-sm font-medium text-gray-700">ID Tagihan</label>
+                            <input type="text" id="id-tagihan" name="id_tagihan" class="mt-1 block w-full border border-gray-300 rounded-md shadow-sm py-2 px-3 focus:outline-none focus:ring-teal-500 focus:border-teal-500 sm:text-sm">
+                            <span id="error-tagihan" class="text-sm text-red-500 hidden"></span>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="bg-gray-50 px-4 py-3 sm:px-6 sm:flex sm:flex-row-reverse">
+                    <button 
+                        type="submit" 
+                        class="w-full inline-flex justify-center rounded-lg border border-transparent shadow-sm px-6 py-2.5 bg-teal-600 text-base font-semibold text-white hover:bg-teal-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-teal-500 transition-colors sm:ml-3 sm:w-auto sm:text-sm"
+                    >
+                        Upload Bukti
+                    </button>
+                    <button 
+                        type="button" 
+                        onclick="closeBuktiPembayaranModal()" 
+                        class="mt-3 w-full inline-flex justify-center rounded-lg border border-gray-300 shadow-sm px-6 py-2.5 bg-white text-base font-semibold text-gray-700 hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-teal-500 transition-colors sm:mt-0 sm:w-auto sm:text-sm"
+                    >
+                        Batal
+                    </button>
+                </div>
+            </form>
+            </div>
+    </div>
+</div>
+
+        <!--Modal akhiri kontrak-->
+<div id="endContractModal" class="hidden fixed inset-0 z-50 overflow-y-auto">
+    <div class="flex items-center justify-center min-h-screen px-4 pt-4 pb-20 text-center sm:block sm:p-0">
+        <div class="fixed inset-0 bg-gray-900 bg-opacity-75 transition-opacity" onclick="closeEndContractModal()"></div>
+
+        <div class="inline-block align-bottom bg-white rounded-2xl text-left overflow-hidden shadow-xl transform transition-all sm:my-8 sm:align-middle sm:max-w-lg sm:w-full">
+            <div class="bg-white px-4 pt-5 pb-4 sm:p-6 sm:pb-4">
+                <div class="sm:flex sm:items-start">
+                    <div class="mx-auto flex-shrink-0 flex items-center justify-center h-12 w-12 rounded-full bg-red-100 sm:mx-0">
+                        <i class='bx bx-log-out text-2xl text-red-600'></i>
+                    </div>
+                    <div class="mt-3 text-center sm:mt-0 sm:ml-4 sm:text-left">
+                        <h3 class="text-xl leading-6 font-bold text-gray-900">
+                            Akhiri Kontrak
+                        </h3>
+                        <div class="mt-2">
+                            <p class="text-sm text-gray-600">
+                                Apakah Anda yakin ingin mengakhiri kontrak dan keluar dari kamar ini?
+                            </p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="bg-gray-50 px-4 py-3 sm:px-6 sm:flex sm:flex-row-reverse gap-3">
+                <form id="endContractForm" action="{{ route('kamar.keluar', $kamarDitempati->id ?? 0) }}" method="POST" class="w-full sm:w-auto">
+                    @csrf
+                    <button type="submit"
+                        class="w-full inline-flex justify-center rounded-lg border border-transparent shadow-sm px-6 py-2.5 bg-red-600 text-base font-semibold text-white hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-red-500 transition-colors sm:w-auto sm:text-sm">
+                        <i class='bx bx-log-out mr-2'></i>
+                        Ya, Akhiri Kontrak
+                    </button>
+                </form>
+                <button type="button" onclick="closeEndContractModal()"
+                    class="mt-3 w-full inline-flex justify-center rounded-lg border border-gray-300 shadow-sm px-4 py-2 bg-white text-sm font-medium text-gray-700 hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-teal-500 transition-colors sm:mt-0 sm:w-auto">
+                    Batal
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+
     <script>
         // FUNGSI UNTUK MENGELOLA DROPDOWN
         function setupDropdownToggle(buttonId, menuId) {
@@ -506,6 +662,57 @@
                 document.getElementById('contact-dropdown').classList.add('hidden');
             }
         });
+
+        function openEndContractModal(kamarId) {
+    const modal = document.getElementById('endContractModal');
+    const form = document.getElementById('endContractForm'); // Dapatkan form di dalam modal
+
+    // 1. Atur URL Action Form
+    // Sesuaikan dengan route Laravel Anda. Contoh: '/kamar/keluar/ID_KAMAR'
+    // Pastikan Anda mendapatkan URL dasarnya dari Blade (misalnya di <meta> tag atau variabel JS)
+    
+    // **ASUMSI:** Base route 'kamar.keluar' adalah '/kamar/keluar/'
+    // Anda harus menentukan cara mendapatkan base URL route 'kamar.keluar' di JS.
+    
+    // CARA PALING EFEKTIF: Simpan template URL di elemen HTML atau variabel global.
+    // Misal: <div data-keluar-route="{{ route('kamar.keluar', 'ID_PLACEHOLDER') }}" id="route-data"></div>
+    // Atau kita gunakan saja logika konstruksi URL yang paling dasar:
+    
+    // Dapatkan URL dasar (asumsi route 'kamar.keluar' adalah /kamar/keluar/{kamar})
+    // NOTE: Ini akan mengabaikan nilai placeholder default '0' di Blade
+    let baseUrl = form.getAttribute('action').replace(/\/\d+$/, ''); // Menghapus ID yang ada (misalnya /0)
+
+    // Jika Anda sudah mengetahui URL dasar, Anda bisa menggunakannya.
+    // Contoh: const baseUrl = '/kamar/keluar/'; // Ganti sesuai struktur route Anda
+    
+    // Gunakan URL yang sudah ada dan ganti angka terakhirnya dengan ID yang baru
+    let newActionUrl = form.getAttribute('action').replace(/(\/\d+)$/, '/' + kamarId);
+    
+    form.setAttribute('action', newActionUrl); // Set Action URL yang baru
+    
+    // 2. Tampilkan Modal
+    modal.classList.remove('hidden');
+    document.body.style.overflow = 'hidden';
+
+    // 3. Tutup dropdown
+    document.getElementById('profile-menu').classList.add('hidden');
+    document.getElementById('contact-dropdown').classList.add('hidden');
+}
+
+// Fungsi untuk menutup modal Akhiri Kontrak
+function closeEndContractModal() {
+    const modal = document.getElementById('endContractModal');
+    modal.classList.add('hidden');
+    document.body.style.overflow = 'auto';
+}
+
+// Event listener Escape key (pertahankan)
+document.addEventListener('keydown', function(e) {
+    if (e.key === 'Escape') {
+        closeEndContractModal();
+        // ... modal lainnya
+    }
+});
 
         // Fungsi untuk membuka modal Review
         function openReviewModal(mode = 'create') {
@@ -596,6 +803,137 @@
                 closeReviewModal();
             });
         })();
+
+        const modalPembayaran = document.getElementById('modal-bukti-pembayaran');
+const uploadArea = document.getElementById('upload-area-bukti');
+const fileInput = document.getElementById('bukti-pembayaran-file-input');
+
+// Ambil elemen form dan input
+const formPembayaran = document.getElementById('bukti-pembayaran-form');
+const inputMetode = document.getElementById('metode-pembayaran');
+const inputJumlah = document.getElementById('jumlah-pembayaran');
+const inputTagihan = document.getElementById('id-tagihan');
+
+// Ambil elemen pesan error
+const errorBukti = document.getElementById('error-bukti');
+const errorMetode = document.getElementById('error-metode');
+const errorJumlah = document.getElementById('error-jumlah');
+const errorTagihan = document.getElementById('error-tagihan');
+
+
+// --- Kontrol Modal ---
+function openBuktiPembayaranModal() {
+    modalPembayaran.classList.remove('hidden');
+    document.body.style.overflow = 'hidden'; 
+}
+
+function closeBuktiPembayaranModal() {
+    modalPembayaran.classList.add('hidden');
+    document.body.style.overflow = 'auto'; 
+    // Reset tampilan area upload saat modal ditutup
+    const fileNameDisplay = uploadArea.querySelector('.upload-text');
+    fileNameDisplay.textContent = 'Klik untuk upload atau drag & drop';
+    uploadArea.classList.add('border-gray-300');
+    uploadArea.classList.remove('border-teal-500');
+    
+    // Reset pesan error saat modal ditutup
+    errorBukti.classList.add('hidden');
+    errorMetode.classList.add('hidden');
+    errorJumlah.classList.add('hidden');
+    errorTagihan.classList.add('hidden');
+}
+
+// Menutup modal jika user mengklik area abu-abu
+modalPembayaran.addEventListener('click', function(event) {
+    if (event.target === modalPembayaran) {
+        closeBuktiPembayaranModal();
+    }
+});
+
+// --- Pemicu Input File & Feedback ---
+
+// Memicu klik pada input file saat area upload diklik
+uploadArea.addEventListener('click', function() {
+    fileInput.click();
+});
+
+// Memberi feedback visual nama file yang dipilih
+fileInput.addEventListener('change', function() {
+    const fileNameDisplay = uploadArea.querySelector('.upload-text');
+    if (this.files && this.files.length > 0) {
+        fileNameDisplay.textContent = 'File terpilih: ' + this.files[0].name;
+        uploadArea.classList.add('border-teal-500');
+        uploadArea.classList.remove('border-gray-300');
+    } else {
+        fileNameDisplay.textContent = 'Klik untuk upload atau drag & drop';
+        uploadArea.classList.add('border-gray-300');
+        uploadArea.classList.remove('border-teal-500');
+    }
+});
+
+
+// =======================================================
+// ==================== FUNGSI VALIDASI ====================
+// =======================================================
+
+function validatePaymentForm() {
+    let isValid = true;
+
+    // 1. Reset semua pesan error
+    errorBukti.classList.add('hidden');
+    errorMetode.classList.add('hidden');
+    errorJumlah.classList.add('hidden');
+    errorTagihan.classList.add('hidden');
+    
+    // 2. Cek Bukti Pembayaran (File Input)
+    if (fileInput.files.length === 0) {
+        errorBukti.textContent = '❗ Bukti gambar transfer wajib di-upload.';
+        errorBukti.classList.remove('hidden');
+        isValid = false;
+    }
+
+    // 3. Cek Metode Pembayaran
+    if (inputMetode.value.trim() === '') {
+        inputMetode.classList.add('border-red-500'); // Opsional: Beri border merah
+        errorMetode.textContent = '❗ Metode pembayaran harus diisi.';
+        errorMetode.classList.remove('hidden');
+        isValid = false;
+    } else {
+        inputMetode.classList.remove('border-red-500');
+    }
+
+    // 4. Cek Jumlah Pembayaran (harus diisi dan > 0)
+    if (inputJumlah.value.trim() === '' || parseFloat(inputJumlah.value) <= 0) {
+        inputJumlah.classList.add('border-red-500');
+        errorJumlah.textContent = '❗ Masukkan jumlah pembayaran yang valid (lebih dari 0).';
+        errorJumlah.classList.remove('hidden');
+        isValid = false;
+    } else {
+        inputJumlah.classList.remove('border-red-500');
+    }
+
+    // 5. Cek ID Tagihan
+    if (inputTagihan.value.trim() === '') {
+        inputTagihan.classList.add('border-red-500');
+        errorTagihan.textContent = '❗ ID Tagihan wajib diisi.';
+        errorTagihan.classList.remove('hidden');
+        isValid = false;
+    } else {
+        inputTagihan.classList.remove('border-red-500');
+    }
+
+    return isValid;
+}
+
+
+// --- EVENT LISTENER UNTUK SUBMIT FORM ---
+formPembayaran.addEventListener('submit', function(event) {
+    // Jalankan fungsi validasi
+    if (!validatePaymentForm()) {
+        // Jika validasi gagal (mengembalikan false), hentikan pengiriman form
+        event.preventDefault(); 
+    }
+});
     </script>
 </body>
 

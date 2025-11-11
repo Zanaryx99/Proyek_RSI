@@ -11,7 +11,6 @@ use Illuminate\Support\Facades\Storage;
 
 class penghuniController extends Controller
 {
-
     public function indexPi()
     {
         $user = Auth::user();
@@ -26,12 +25,24 @@ class penghuniController extends Controller
         $kamarDitempati = Kamar::where('user_id', $user->id)->first();
 
         $kosCollection = collect();
+        $owner = null; // Inisialisasi variabel owner
 
         if ($kamarDitempati && $kamarDitempati->kos) {
-            $kosCollection = collect([$kamarDitempati->kos]);
+            $kos = $kamarDitempati->kos;
+            
+            // 1. Ambil data User Pemilik (Owner) dari Kos
+            // Asumsi: Model Kos memiliki relasi 'user' atau 'owner' yang mengarah ke User model
+            // Jika model Kos Anda memiliki kolom 'user_id' yang menunjuk ke Pemilik:
+            $owner = $kos->user; // Asumsi: $kos->user adalah relasi di model Kos yang mengarah ke pemilik (User)
+            
+            // Atau jika ID pemilik ada di Kos model:
+            // $owner = User::find($kos->id_owner_kolom); // Ganti id_owner_kolom dengan nama kolom yang benar
+
+            $kosCollection = collect([$kos]);
         }
 
-        return view('dashboard.penghuni', compact('kosCollection', 'kamarDitempati'));
+        // Kirim semua variabel yang diperlukan ke view
+        return view('dashboard.penghuni', compact('kosCollection', 'kamarDitempati', 'owner'));
     }
 
 
@@ -39,8 +50,11 @@ class penghuniController extends Controller
     {
         // Ambil data user yang sedang login
         $user = Auth::user();
+        $kamarDitempati = Kamar::where('user_id', $user->id)->first();
 
-        return view('profile.profilpenghuni', compact('user'));
+        // Tentukan status berdasarkan keberadaan kamar
+        $statusAktif = $kamarDitempati ? 'Aktif' : 'Tidak Aktif';
+        return view('profile.profilpenghuni', compact('user', 'statusAktif', 'kamarDitempati'));
     }
 
     public function update(Request $request)
@@ -57,8 +71,8 @@ class penghuniController extends Controller
         // Handle upload foto profil
         if ($request->hasFile('foto_profile')) {
             // Hapus foto lama jika ada
-            if ($user->foto_profile) {  // ← PERBAIKI: ganti 'profile' menjadi 'foto_profile'
-                Storage::delete($user->foto_profile);  // ← PERBAIKI: ganti 'profile' menjadi 'foto_profile'
+            if ($user->foto_profile) { 
+                Storage::delete($user->foto_profile); 
             }
 
             // Simpan foto baru
@@ -125,30 +139,4 @@ class penghuniController extends Controller
         return redirect()->route('penghuni.dashboard')
             ->with('success', 'Anda berhasil keluar dari kamar ' . $kamar->nama_kamar);
     }
-    // public function joinKos(Request $request)
-    // {
-    //     $request->validate([
-    //         'id_kos' => 'required|exists:kos,id'
-    //     ], [
-    //         'id_kos.required' => 'ID Kos harus diisi',
-    //         'id_kos.exists' => 'ID Kos tidak ditemukan'
-    //     ]);
-
-    //     $kos = Kos::find($request->id_kos);
-
-    //     if (!$kos) {
-    //         return back()
-    //             ->withInput()
-    //             ->withErrors(['id_kos' => 'Kos tidak ditemukan']);
-    //     }
-
-    //     // Update user's id_kos
-    //     $user = Auth::user();
-    //     $user->id_kos = $kos->id;
-    //     $user->save();
-
-    //     // Redirect to DPenghuni route instead of undefined penghuni.dashboard
-    //     return redirect('/DPenghuni')
-    //         ->with('success', 'Berhasil bergabung dengan kos!');
-    // }
 }
