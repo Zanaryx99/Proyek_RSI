@@ -262,7 +262,7 @@
                 Edit Profil
             </button>
 
-            <a href="{{ url()->previous() }}" class="back-link">
+            <a href="{{ route('pemilik.dashboard') }}" class="back-link">
                 &#8592; <span>Detail Akun</span>
             </a>
 

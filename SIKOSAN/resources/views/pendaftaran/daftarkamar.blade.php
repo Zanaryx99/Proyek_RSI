@@ -66,19 +66,19 @@
             align-items: center;
             gap: 0.5rem;
         }
-        
+
         .status-tersedia {
             background-color: #dcfce7;
             color: #166534;
             border: 1px solid #bbf7d0;
         }
-        
+
         .status-terisi {
             background-color: #dbeafe;
             color: #1e40af;
             border: 1px solid #bfdbfe;
         }
-        
+
         .status-renovasi {
             background-color: #fef3c7;
             color: #92400e;
@@ -102,66 +102,8 @@
 </head>
 
 <body class="min-h-screen">
-    <header class="fixed top-0 left-0 w-full bg-white shadow-sm z-10 border-b border-gray-200">
-        <div class="max-w-7xl mx-auto px-4 py-3 flex items-center justify-between">
-            <div class="flex items-center gap-3">
-                <div class="relative">
-                    <button id="profile-menu-button" class="flex items-center rounded-full focus:outline-none"
-                        aria-haspopup="true" aria-expanded="false">
-                        <div class="w-10 h-10 flex items-center justify-center bg-purple-100 rounded-full">
-                            <i class='bx bxs-user bx-sm text-purple-500'></i>
-                        </div>
-                    </button>
+    <x-header />
 
-                    <div id="profile-menu"
-                        class="hidden absolute left-0 mt-2 w-48 bg-white rounded-md shadow py-1 ring-1 ring-black ring-opacity-5">
-                        <a href="#" class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">Profil Saya</a>
-                        <a href="/logout"
-                            class="block px-4 py-2 text-sm text-red-600 font-semibold hover:bg-gray-100">Logout</a>
-                    </div>
-                </div>
-
-                <span class="text-2xl font-bold text-teal-700">Sikosan</span>
-            </div>
-
-            <nav class="flex items-center space-x-6 md:space-x-8 text-sm md:text-base">
-                <div class="relative mr-4 md:mr-8">
-                    <button id="contact-dropdown-button"
-                        class="text-teal-700 font-semibold focus:outline-none flex items-center" type="button">
-                        Contact
-                    </button>
-                    <div id="contact-dropdown"
-                        class="hidden absolute right-0 mt-2 w-56 bg-white rounded-xl shadow-2xl py-2 ring-1 ring-black ring-opacity-5 z-20">
-                        <a href="https://wa.me/6281234567890" target="_blank"
-                            class="flex items-center px-3 py-2 text-sm text-gray-800 hover:bg-teal-50">
-                            <i class='bx bxl-whatsapp text-lg mr-2 text-green-500'></i>
-                            <div class="flex flex-col">
-                                <span class="font-semibold">WhatsApp</span>
-                                <span class="text-xs text-gray-500">+62 812-3456-7890</span>
-                            </div>
-                        </a>
-                        <a href="https://instagram.com/sikosanapp" target="_blank"
-                            class="flex items-center px-3 py-2 text-sm text-gray-800 hover:bg-teal-50">
-                            <i class='bx bxl-instagram text-lg mr-2 text-pink-500'></i>
-                            <div class="flex flex-col">
-                                <span class="font-semibold">Instagram</span>
-                                <span class="text-xs text-gray-500">@sikosanapp</span>
-                            </div>
-                        </a>
-                        <a href="mailto:support@sikosan.com"
-                            class="flex items-center px-3 py-2 text-sm text-gray-800 hover:bg-teal-50">
-                            <i class='bx bx-envelope text-lg mr-2 text-blue-500'></i>
-                            <div class="flex flex-col">
-                                <span class="font-semibold">Email</span>
-                                <span class="text-xs text-gray-500">support@sikosan.com</span>
-                            </div>
-                        </a>
-                    </div>
-                </div>
-                <a href="#" class="text-teal-700 font-semibold">About Us</a>
-            </nav>
-        </div>
-    </header>
 
     <main class="pt-24 pb-12 flex justify-center">
         <div class="w-full max-w-2xl bg-white p-8 md:p-12 rounded-3xl shadow-xl">
@@ -187,22 +129,22 @@
 
             <!-- Menampilkan pesan sukses atau error -->
             @if(session('success'))
-                <div class="bg-green-100 border border-green-400 text-green-700 px-4 py-3 rounded relative mb-6"
-                    role="alert">
-                    <span class="block sm:inline">{{ session('success') }}</span>
-                </div>
+            <div class="bg-green-100 border border-green-400 text-green-700 px-4 py-3 rounded relative mb-6"
+                role="alert">
+                <span class="block sm:inline">{{ session('success') }}</span>
+            </div>
             @endif
 
             @if ($errors->any())
-                <div class="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded relative mb-6" role="alert">
-                    <strong class="font-bold">Oops!</strong>
-                    <span class="block sm:inline">Ada beberapa masalah dengan input Anda.</span>
-                    <ul class="mt-2 list-disc list-inside">
-                        @foreach ($errors->all() as $error)
-                            <li>{{ $error }}</li>
-                        @endforeach
-                    </ul>
-                </div>
+            <div class="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded relative mb-6" role="alert">
+                <strong class="font-bold">Oops!</strong>
+                <span class="block sm:inline">Ada beberapa masalah dengan input Anda.</span>
+                <ul class="mt-2 list-disc list-inside">
+                    @foreach ($errors->all() as $error)
+                    <li>{{ $error }}</li>
+                    @endforeach
+                </ul>
+            </div>
             @endif
 
             <!-- Data Kamar (Read-only) -->
@@ -214,13 +156,13 @@
                     </label>
                     <div class="mt-1">
                         @if($kamar->foto_kamar)
-                            <img src="{{ asset('storage/' . $kamar->foto_kamar) }}" alt="Foto {{ $kamar->nama_kamar }}"
-                                class="w-full h-64 object-cover rounded-lg border border-gray-300">
+                        <img src="{{ asset('storage/' . $kamar->foto_kamar) }}" alt="Foto {{ $kamar->nama_kamar }}"
+                            class="w-full h-64 object-cover rounded-lg border border-gray-300">
                         @else
-                            <div
-                                class="w-full h-64 bg-gray-200 rounded-lg flex items-center justify-center border border-gray-300">
-                                <i class='bx bx-image text-4xl text-gray-400'></i>
-                            </div>
+                        <div
+                            class="w-full h-64 bg-gray-200 rounded-lg flex items-center justify-center border border-gray-300">
+                            <i class='bx bx-image text-4xl text-gray-400'></i>
+                        </div>
                         @endif
                     </div>
                 </div>
@@ -238,23 +180,23 @@
                     <label class="block text-sm font-medium text-gray-600 mb-1">Status Ketersediaan</label>
                     <div class="form-field">
                         @if($kamar->status === 'tersedia')
-                            <span class="status-badge status-tersedia">
-                                <i class='bx bx-check-circle'></i>
-                                Tersedia
-                            </span>
-                            <p class="text-sm text-gray-600 mt-2">Kamar siap untuk ditempati oleh penghuni baru.</p>
+                        <span class="status-badge status-tersedia">
+                            <i class='bx bx-check-circle'></i>
+                            Tersedia
+                        </span>
+                        <p class="text-sm text-gray-600 mt-2">Kamar siap untuk ditempati oleh penghuni baru.</p>
                         @elseif($kamar->status === 'terisi')
-                            <span class="status-badge status-terisi">
-                                <i class='bx bx-user-check'></i>
-                                Terisi
-                            </span>
-                            <p class="text-sm text-gray-600 mt-2">Kamar sedang ditempati oleh penghuni.</p>
+                        <span class="status-badge status-terisi">
+                            <i class='bx bx-user-check'></i>
+                            Terisi
+                        </span>
+                        <p class="text-sm text-gray-600 mt-2">Kamar sedang ditempati oleh penghuni.</p>
                         @elseif($kamar->status === 'renovasi')
-                            <span class="status-badge status-renovasi">
-                                <i class='bx bx-wrench'></i>
-                                Renovasi
-                            </span>
-                            <p class="text-sm text-gray-600 mt-2">Kamar sedang dalam proses perbaikan atau renovasi.</p>
+                        <span class="status-badge status-renovasi">
+                            <i class='bx bx-wrench'></i>
+                            Renovasi
+                        </span>
+                        <p class="text-sm text-gray-600 mt-2">Kamar sedang dalam proses perbaikan atau renovasi.</p>
                         @endif
                     </div>
                 </div>
@@ -301,57 +243,112 @@
                 <div class="flex items-center justify-between">
                     <div>
                         <div class="flex items-center gap-3">
-                            <code class="text-2xl font-bold text-teal-700 bg-white px-4 py-2 rounded-lg border-2 border-teal-200">
+                            <code
+                                class="text-2xl font-bold text-teal-700 bg-white px-4 py-2 rounded-lg border-2 border-teal-200">
                                 {{ $kamar->kode_unik }}
                             </code>
-                            <button onclick="copyKodeUnik('{{ $kamar->kode_unik }}')" 
-                                    class="text-teal-600 hover:text-teal-700 transition-colors p-2 rounded-lg hover:bg-teal-50"
-                                    title="Salin kode unik">
+                            <button onclick="copyKodeUnik('{{ $kamar->kode_unik }}')"
+                                class="text-teal-600 hover:text-teal-700 transition-colors p-2 rounded-lg hover:bg-teal-50"
+                                title="Salin kode unik">
                                 <i class='bx bx-copy text-xl'></i>
                             </button>
                         </div>
                         <p class="text-sm text-gray-600 mt-2">
                             @if($kamar->status === 'tersedia')
-                                Berikan kode ini kepada calon penghuni untuk bergabung ke kamar ini.
+                            Berikan kode ini kepada calon penghuni untuk bergabung ke kamar ini.
                             @elseif($kamar->status === 'terisi')
-                                Kode unik sedang digunakan oleh penghuni.
+                            Kode unik sedang digunakan oleh penghuni.
                             @else
-                                Kode unik tidak aktif saat kamar dalam renovasi.
+                            Kode unik tidak aktif saat kamar dalam renovasi.
                             @endif
                         </p>
                     </div>
                 </div>
             </div>
 
-            <!-- Informasi Tambahan -->
-            <div class="mt-8 grid grid-cols-1 md:grid-cols-2 gap-4">
-                <div class="info-card">
-                    <h4 class="font-semibold text-gray-700 mb-2 flex items-center gap-2">
-                        <i class='bx bx-info-circle text-blue-500'></i>
-                        Informasi Status
-                    </h4>
-                    <ul class="text-sm text-gray-600 space-y-1">
-                        <li>• <span class="font-medium text-green-600">Tersedia:</span> Kamar bisa ditempati</li>
-                        <li>• <span class="font-medium text-blue-600">Terisi:</span> Kamar sudah ada penghuni</li>
-                        <li>• <span class="font-medium text-yellow-600">Renovasi:</span> Kamar sedang diperbaiki</li>
-                    </ul>
-                </div>
 
-                <div class="info-card">
-                    <h4 class="font-semibold text-gray-700 mb-2 flex items-center gap-2">
-                        <i class='bx bx-edit-alt text-teal-500'></i>
-                        Cara Mengubah Status
-                    </h4>
-                    <ul class="text-sm text-gray-600 space-y-1">
-                        <li>• Klik tombol <strong>Edit</strong> di atas</li>
-                        <li>• Ubah status di form edit</li>
-                        <li>• Simpan perubahan</li>
-                        <li>• Status "Terisi" otomatis saat penghuni bergabung</li>
-                    </ul>
+        </div>
+    </main>
+    <!-- Modal About Us -->
+    <div id="aboutModal" class="hidden fixed inset-0 z-50 overflow-y-auto">
+        <div class="flex items-center justify-center min-h-screen px-4 pt-4 pb-20 text-center sm:block sm:p-0">
+
+            <div class="fixed inset-0 bg-gray-900 bg-opacity-75 transition-opacity" onclick="closeAboutModal()"></div>
+
+            <div
+                class="inline-block align-bottom bg-white rounded-2xl text-left overflow-hidden shadow-xl transform transition-all sm:my-8 sm:align-middle sm:max-w-lg sm:w-full">
+                <div class="bg-white px-4 pt-5 pb-4 sm:p-6 sm:pb-4">
+                    <div class="sm:flex sm:items-start">
+                        <div
+                            class="mx-auto flex-shrink-0 flex items-center justify-center h-12 w-12 rounded-full bg-blue-100 sm:mx-0">
+                            <i class='bx bx-info-circle text-2xl text-blue-600'></i>
+                        </div>
+                        <div class="mt-3 text-center sm:mt-0 sm:ml-4 sm:text-left">
+                            <h3 class="text-xl leading-6 font-bold text-gray-900">
+                                Tentang Sikosan
+                            </h3>
+                            <div class="mt-2">
+                                <p class="text-sm text-gray-600">
+                                    Sikosan adalah platform pencarian kos terdepan di Indonesia yang membantu Anda
+                                    menemukan tempat tinggal yang tepat dengan mudah dan cepat.
+                                </p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="bg-gray-50 px-4 py-3 sm:px-6 sm:flex sm:flex-row-reverse">
+                    <button type="button" onclick="closeAboutModal()"
+                        class="w-full inline-flex justify-center rounded-lg border border-transparent shadow-sm px-6 py-2.5 bg-teal-600 text-base font-semibold text-white hover:bg-teal-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-teal-500 transition-colors sm:w-auto sm:text-sm">
+                        Tutup
+                    </button>
                 </div>
             </div>
         </div>
-    </main>
+    </div>
+
+    <!-- Modal Logout -->
+    <div id="logoutModal" class="hidden fixed inset-0 z-50 overflow-y-auto">
+        <div class="flex items-center justify-center min-h-screen px-4 pt-4 pb-20 text-center sm:block sm:p-0">
+
+            <div class="fixed inset-0 bg-gray-900 bg-opacity-75 transition-opacity" onclick="closeLogoutModal()"></div>
+
+            <div
+                class="inline-block align-bottom bg-white rounded-2xl text-left overflow-hidden shadow-xl transform transition-all sm:my-8 sm:align-middle sm:max-w-lg sm:w-full">
+                <div class="bg-white px-4 pt-5 pb-4 sm:p-6 sm:pb-4">
+                    <div class="sm:flex sm:items-start">
+                        <div
+                            class="mx-auto flex-shrink-0 flex items-center justify-center h-12 w-12 rounded-full bg-red-100 sm:mx-0">
+                            <i class='bx bx-log-out text-2xl text-red-600'></i>
+                        </div>
+                        <div class="mt-3 text-center sm:mt-0 sm:ml-4 sm:text-left">
+                            <h3 class="text-xl leading-6 font-bold text-gray-900">
+                                Konfirmasi Logout
+                            </h3>
+                            <div class="mt-2">
+                                <p class="text-sm text-gray-600">
+                                    Apakah Anda yakin ingin keluar dari akun ini?
+                                </p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="bg-gray-50 px-4 py-3 sm:px-6 sm:flex sm:flex-row-reverse gap-3">
+                    <form action="/logout" method="GET" class="w-full sm:w-auto">
+                        <button type="submit"
+                            class="w-full inline-flex justify-center rounded-lg border border-transparent shadow-sm px-6 py-2.5 bg-red-600 text-base font-semibold text-white hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-red-500 transition-colors sm:w-auto sm:text-sm">
+                            <i class='bx bx-log-out mr-2'></i>
+                            Ya, Logout
+                        </button>
+                    </form>
+                    <button type="button" onclick="closeLogoutModal()"
+                        class="mt-3 w-full inline-flex justify-center rounded-lg border border-gray-300 shadow-sm px-4 py-2 bg-white text-sm font-medium text-gray-700 hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-teal-500 transition-colors sm:mt-0 sm:w-auto">
+                        Batal
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
 
     <!-- Modal Edit Kamar -->
     <div id="editModal" class="hidden fixed inset-0 z-50 overflow-y-auto">
@@ -383,15 +380,15 @@
                                 class="mt-1 flex flex-col items-center px-6 pt-5 pb-6 border-2 border-gray-300 border-dashed rounded-md cursor-pointer hover:border-teal-400 transition-colors">
                                 <div class="space-y-1 text-center">
                                     @if($kamar->foto_kamar)
-                                        <img id="edit_current_photo" src="{{ asset('storage/' . $kamar->foto_kamar) }}"
-                                            alt="Foto saat ini" class="w-32 h-32 object-cover rounded-lg mx-auto mb-4">
+                                    <img id="edit_current_photo" src="{{ asset('storage/' . $kamar->foto_kamar) }}"
+                                        alt="Foto saat ini" class="w-32 h-32 object-cover rounded-lg mx-auto mb-4">
                                     @else
-                                        <svg class="mx-auto h-12 w-12 text-gray-400" stroke="currentColor" fill="none"
-                                            viewBox="0 0 48 48" aria-hidden="true">
-                                            <path
-                                                d="M28 8H12a4 4 0 00-4 4v20m32-12v8m0 0v8a4 4 0 01-4 4H12a4 4 0 01-4-4v-4m32-4l-3.172-3.172a4 4 0 00-5.656 0L28 28M8 32l9.172-9.172a4 4 0 015.656 0L28 28m0 0l4 4m4-24h8m-4-4v8"
-                                                stroke-width="2" stroke-linecap="round" stroke-linejoin="round" />
-                                        </svg>
+                                    <svg class="mx-auto h-12 w-12 text-gray-400" stroke="currentColor" fill="none"
+                                        viewBox="0 0 48 48" aria-hidden="true">
+                                        <path
+                                            d="M28 8H12a4 4 0 00-4 4v20m32-12v8m0 0v8a4 4 0 01-4 4H12a4 4 0 01-4-4v-4m32-4l-3.172-3.172a4 4 0 00-5.656 0L28 28M8 32l9.172-9.172a4 4 0 015.656 0L28 28m0 0l4 4m4-24h8m-4-4v8"
+                                            stroke-width="2" stroke-linecap="round" stroke-linejoin="round" />
+                                    </svg>
                                     @endif
 
                                     <div class="flex text-sm text-gray-600 items-center justify-center gap-2">
@@ -432,11 +429,14 @@
 
                         <!-- Status Kamar - HANYA tersedia dan renovasi -->
                         <div>
-                            <label for="edit_status" class="block text-sm font-medium text-gray-600 mb-1">Status Ketersediaan *</label>
+                            <label for="edit_status" class="block text-sm font-medium text-gray-600 mb-1">Status
+                                Ketersediaan *</label>
                             <select name="status" id="edit_status" required
                                 class="w-full border border-gray-300 rounded-md shadow-sm focus:border-teal-500 focus:ring-teal-500 px-4 py-2">
-                                <option value="tersedia" {{ $kamar->status == 'tersedia' ? 'selected' : '' }}>Tersedia</option>
-                                <option value="renovasi" {{ $kamar->status == 'renovasi' ? 'selected' : '' }}>Renovasi</option>
+                                <option value="tersedia" {{ $kamar->status == 'tersedia' ? 'selected' : '' }}>Tersedia
+                                </option>
+                                <option value="renovasi" {{ $kamar->status == 'renovasi' ? 'selected' : '' }}>Renovasi
+                                </option>
                             </select>
                             <p class="text-xs text-gray-500 mt-1">
                                 Status "Terisi" akan otomatis aktif ketika penghuni menggunakan kode unik
@@ -539,24 +539,23 @@
         function showNotification(message, type = 'success') {
             // Buat elemen notifikasi
             const notification = document.createElement('div');
-            notification.className = `fixed top-4 right-4 z-50 px-6 py-3 rounded-lg shadow-lg transition-all duration-300 transform translate-x-full ${
-                type === 'success' ? 'bg-green-500 text-white' : 'bg-red-500 text-white'
-            }`;
+            notification.className = `fixed top-4 right-4 z-50 px-6 py-3 rounded-lg shadow-lg transition-all duration-300 transform translate-x-full ${type === 'success' ? 'bg-green-500 text-white' : 'bg-red-500 text-white'
+                }`;
             notification.innerHTML = `
                 <div class="flex items-center gap-2">
                     <i class='bx ${type === 'success' ? 'bx-check-circle' : 'bx-error'} text-xl'></i>
                     <span>${message}</span>
                 </div>
             `;
-            
+
             document.body.appendChild(notification);
-            
+
             // Animasi masuk
             setTimeout(() => {
                 notification.classList.remove('translate-x-full');
                 notification.classList.add('translate-x-0');
             }, 100);
-            
+
             // Animasi keluar setelah 3 detik
             setTimeout(() => {
                 notification.classList.remove('translate-x-0');
@@ -566,7 +565,41 @@
                 }, 300);
             }, 3000);
         }
+        // Fungsi untuk membuka modal About Us
+        function openAboutModal() {
+            const modal = document.getElementById('aboutModal');
+            modal.classList.remove('hidden');
+            document.body.style.overflow = 'hidden';
 
+            // Tutup semua dropdown saat modal dibuka
+            document.getElementById('profile-menu').classList.add('hidden');
+            document.getElementById('contact-dropdown').classList.add('hidden');
+        }
+
+        // Fungsi untuk menutup modal About Us
+        function closeAboutModal() {
+            const modal = document.getElementById('aboutModal');
+            modal.classList.add('hidden');
+            document.body.style.overflow = 'auto';
+        }
+
+        // Fungsi untuk membuka modal Logout
+        function openLogoutModal() {
+            const modal = document.getElementById('logoutModal');
+            modal.classList.remove('hidden');
+            document.body.style.overflow = 'hidden';
+
+            // Tutup semua dropdown saat modal dibuka
+            document.getElementById('profile-menu').classList.add('hidden');
+            document.getElementById('contact-dropdown').classList.add('hidden');
+        }
+
+        // Fungsi untuk menutup modal Logout
+        function closeLogoutModal() {
+            const modal = document.getElementById('logoutModal');
+            modal.classList.add('hidden');
+            document.body.style.overflow = 'auto';
+        }
         // Modal functions
         function openEditModal() {
             const modal = document.getElementById('editModal');
@@ -581,7 +614,7 @@
         }
 
         // Dropdown functionality & File upload functionality
-        document.addEventListener('DOMContentLoaded', function () {
+        document.addEventListener('DOMContentLoaded', function() {
             // Dropdown functionality
             const profileBtn = document.getElementById('profile-menu-button');
             const profileMenu = document.getElementById('profile-menu');
@@ -622,7 +655,7 @@
 
             function showEditPreview(file) {
                 const reader = new FileReader();
-                reader.onload = function (e) {
+                reader.onload = function(e) {
                     editImgPreview.src = e.target.result;
                     editPreviewArea.classList.remove('hidden');
                     // Sembunyikan foto lama saat preview foto baru ditampilkan
@@ -706,7 +739,7 @@
             });
 
             // Close modal with Escape key
-            document.addEventListener('keydown', function (e) {
+            document.addEventListener('keydown', function(e) {
                 if (e.key === 'Escape') {
                     closeEditModal();
                 }
