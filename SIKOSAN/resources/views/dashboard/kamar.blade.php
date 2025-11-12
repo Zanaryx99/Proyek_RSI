@@ -45,26 +45,32 @@
         }
 
         .status-badge {
-            padding: 0.25rem 0.75rem;
-            border-radius: 9999px;
-            font-size: 0.75rem;
+            padding: 0.5rem 1rem;
+            border-radius: 0.5rem;
+            font-size: 0.875rem;
             font-weight: 600;
             text-transform: uppercase;
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
         }
-        
+
         .status-tersedia {
-            background-color: #10b981;
-            color: white;
+            background-color: #dcfce7;
+            color: #166534;
+            border: 1px solid #bbf7d0;
         }
-        
+
         .status-terisi {
-            background-color: #3b82f6;
-            color: white;
+            background-color: #dbeafe;
+            color: #1e40af;
+            border: 1px solid #bfdbfe;
         }
-        
+
         .status-renovasi {
-            background-color: #f59e0b;
-            color: white;
+            background-color: #fef3c7;
+            color: #92400e;
+            border: 1px solid #fde68a;
         }
     </style>
 </head>
@@ -173,21 +179,35 @@
                         <div class="absolute top-3 right-3 bg-teal-500 text-white px-2 py-1 rounded-full text-xs font-semibold">
                             {{ $kamarItem->tipe_kamar ?? 'Standard' }}
                         </div>
-                        <!-- Badge Status Ketersediaan -->
-                        <div class="absolute top-3 left-3">
-                            @if($kamarItem->status === 'tersedia')
-                                <span class="status-badge status-tersedia">Tersedia</span>
-                            @elseif($kamarItem->status === 'terisi')
-                                <span class="status-badge status-terisi">Terisi</span>
-                            @elseif($kamarItem->status === 'renovasi')
-                                <span class="status-badge status-renovasi">Renovasi</span>
-                            @endif
-                        </div>
                     </div>
                     <div class="p-6">
                         <h3 class="text-xl font-bold text-gray-800 truncate">{{ $kamarItem->nama_kamar }}</h3>
                         <p class="text-teal-600 font-semibold text-lg mt-2">Rp {{ number_format($kamarItem->harga_sewa, 0, ',', '.') }}/bulan</p>
                         <p class="text-gray-500 text-sm mt-1">Minimal sewa: {{ $kamarItem->minimal_waktu_sewa }} bulan</p>
+
+                        <!-- Status Ketersediaan - Dipindah ke atas kode unik -->
+                        <div class="mt-4 mb-3">
+                            <label class="block text-sm font-medium text-gray-600 mb-2">Status Kamar</label>
+                            @if($kamarItem->status === 'tersedia')
+                            <span class="status-badge status-tersedia">
+                                <i class='bx bx-check-circle'></i>
+                                Tersedia
+                            </span>
+                            <p class="text-sm text-gray-600 mt-2">Kamar siap untuk ditempati oleh penghuni baru.</p>
+                            @elseif($kamarItem->status === 'terisi')
+                            <span class="status-badge status-terisi">
+                                <i class='bx bx-user-check'></i>
+                                Terisi
+                            </span>
+                            <p class="text-sm text-gray-600 mt-2">Kamar sedang ditempati oleh penghuni.</p>
+                            @elseif($kamarItem->status === 'renovasi')
+                            <span class="status-badge status-renovasi">
+                                <i class='bx bx-wrench'></i>
+                                Renovasi
+                            </span>
+                            <p class="text-sm text-gray-600 mt-2">Kamar sedang dalam proses perbaikan atau renovasi.</p>
+                            @endif
+                        </div>
 
                         <!-- Kode Unik untuk Penghuni -->
                         <div class="mt-3 p-3 bg-gray-50 rounded-lg">
@@ -196,61 +216,22 @@
                                 <code class="text-lg font-bold text-teal-700 bg-white px-2 py-1 rounded border">
                                     {{ $kamarItem->kode_unik }}
                                 </code>
-                                <button onclick="copyKodeUnik('{{ $kamarItem->kode_unik }}')" 
-                                        class="text-teal-600 hover:text-teal-700 transition-colors"
-                                        title="Salin kode">
+                                <button onclick="copyKodeUnik('{{ $kamarItem->kode_unik }}')"
+                                    class="text-teal-600 hover:text-teal-700 transition-colors"
+                                    title="Salin kode">
                                     <i class='bx bx-copy text-xl'></i>
                                 </button>
                             </div>
                             <p class="text-xs text-gray-500 mt-1">
                                 @if($kamarItem->status === 'tersedia')
-                                    Berikan kode ini kepada penghuni untuk bergabung
+                                Berikan kode ini kepada penghuni untuk bergabung
                                 @elseif($kamarItem->status === 'terisi')
-                                    Kamar sedang ditempati oleh penghuni
+                                Kode unik sedang digunakan oleh penghuni
                                 @else
-                                    Kamar sedang tidak tersedia
+                                Kode unik tidak aktif saat kamar dalam renovasi
                                 @endif
                             </p>
                         </div>
-
-                        @if($kamarItem->kos)
-                        <p class="text-gray-600 text-sm mt-1">Kos: {{ $kamarItem->kos->nama_kos }}</p>
-                        @endif
-
-                        @if($kamarItem->deskripsi)
-                        <p class="text-gray-600 text-sm mt-3 line-clamp-2">Deskripsi: {{ Str::limit($kamarItem->deskripsi, 80) }}</p>
-                        @endif
-
-                        <!-- Form Update Status - HANYA untuk status tersedia dan renovasi -->
-                        @if($kamarItem->status !== 'terisi')
-                        <div class="mt-4">
-                            <label for="status_{{ $kamarItem->id }}" class="block text-sm font-medium text-gray-700 mb-1">Ubah Status:</label>
-                            <form action="{{ route('kamar.update-status', $kamarItem->id) }}" method="POST" class="flex gap-2">
-                                @csrf
-                                @method('PATCH')
-                                <select name="status" id="status_{{ $kamarItem->id }}" 
-                                        class="flex-1 border border-gray-300 rounded-md px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-teal-500">
-                                    <option value="tersedia" {{ $kamarItem->status === 'tersedia' ? 'selected' : '' }}>Tersedia</option>
-                                    <option value="renovasi" {{ $kamarItem->status === 'renovasi' ? 'selected' : '' }}>Renovasi</option>
-                                </select>
-                                <button type="submit" 
-                                        class="bg-teal-600 text-white px-3 py-2 rounded-md text-sm hover:bg-teal-700 transition-colors">
-                                    <i class='bx bx-check'></i>
-                                </button>
-                            </form>
-                            <p class="text-xs text-gray-500 mt-1">
-                                Status "Terisi" akan otomatis aktif ketika penghuni menggunakan kode unik
-                            </p>
-                        </div>
-                        @else
-                        <div class="mt-4 p-3 bg-blue-50 rounded-lg">
-                            <p class="text-sm text-blue-700">
-                                <i class='bx bx-info-circle'></i> 
-                                Status "Terisi" aktif karena kamar sedang ditempati penghuni. 
-                                Status akan otomatis kembali ke "Tersedia" ketika penghuni keluar.
-                            </p>
-                        </div>
-                        @endif
 
                         <div class="mt-6 space-y-2">
                             <div class="flex items-center space-x-2">
@@ -567,15 +548,15 @@
                     <span>${message}</span>
                 </div>
             `;
-            
+
             document.body.appendChild(notification);
-            
+
             // Animasi masuk
             setTimeout(() => {
                 notification.classList.remove('translate-x-full');
                 notification.classList.add('translate-x-0');
             }, 100);
-            
+
             // Animasi keluar setelah 3 detik
             setTimeout(() => {
                 notification.classList.remove('translate-x-0');
