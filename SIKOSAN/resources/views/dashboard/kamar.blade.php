@@ -147,7 +147,7 @@
 
             {{-- TAMPILAN UNTUK KAMAR --}}
             <div class="mb-8">
-                <!-- Tombol Back ke Kontrol Kos - Dipindah ke atas sebelah kiri -->
+                <!-- Tombol Back ke Kontrol Kos -->
                 <div class="mb-6">
                     @if(isset($kos) && $kos->id)
                     <a href="{{ route('kos.kontrol', $kos->id) }}"
